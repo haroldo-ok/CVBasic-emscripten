@@ -27,7 +27,7 @@ CVBasic is a lightweight BASIC interpreter, designed for educational and retro-c
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/haroldo-ok/CVBasic-emscripten.git
+    git clone --recurse-submodules https://github.com/haroldo-ok/CVBasic-emscripten.git
     ```
 2. (Planned) Build instructions using Emscripten will be provided soon.
 
