@@ -1,0 +1,3 @@
+[submodule "CVBasic"]
+	path = CVBasic
+	url = https://github.com/nanochess/CVBasic
