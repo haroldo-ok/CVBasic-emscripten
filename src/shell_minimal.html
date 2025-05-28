@@ -58,7 +58,9 @@
     <textarea class="emscripten" id="output" rows="16"></textarea>
     <hr>
 
-	<button onclick="Module.callMain()">Run</button>
+	<button onclick="Module.callMain(['face_joystick.bas', 'face_joystick.asm']); document.getElementById('output').value += '\n\n\nGenerated code: \n' + FS.readFile('face_joystick.asm', { encoding: 'utf8' });">
+		Run
+	</button>
     <hr>	
 
     <script type='text/javascript'>
