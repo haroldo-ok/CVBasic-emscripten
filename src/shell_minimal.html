@@ -55,24 +55,35 @@
     </div>
     
     <hr/>
-    <textarea class="emscripten" id="output" rows="16"></textarea>
-    <hr>
-
+	
 	<button onclick="window.gui.handleCompileButtonClick()">
 		Compile program
 	</button>
     <hr>	
+
+    <textarea class="emscripten" id="generated-asm" rows="16"></textarea>
+    <hr/>
+
+    <textarea class="emscripten" id="output" rows="6"></textarea>
+    <hr>
 
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
       var spinnerElement = document.getElementById('spinner');
 	  
+      const generatedAsmElement = document.getElementById('generated-asm');
+      const outputElement = document.getElementById('output');
+      generatedAsmElement.value = '';
+      outputElement.value = '';
+	  
 	  window.gui = {
-		handleCompileButtonClick: () => {
-			const outputElement = document.getElementById('output');
+		handleCompileButtonClick: () => {			
+			generatedAsmElement.value = '';
+			outputElement.value = '';
+			
 			Module.callMain(['face_joystick.bas', 'face_joystick.asm']);
-			outputElement.value += '\n\n\nGenerated code: \n' + FS.readFile('face_joystick.asm', { encoding: 'utf8' });
+			generatedAsmElement.value += FS.readFile('face_joystick.asm', { encoding: 'utf8' });
 		}
 	  };
 
@@ -102,7 +113,7 @@
           if (0) { // XXX disabled for safety typeof dump == 'function') {
             dump(text + '\n'); // fast, straight to the real console
           } else {
-            console.error(text);
+            console.warn(text);
             if (element) {
               element.value += text + "\n";
               element.scrollTop = element.scrollHeight; // focus on bottom
