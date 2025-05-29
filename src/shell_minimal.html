@@ -58,8 +58,8 @@
     <textarea class="emscripten" id="output" rows="16"></textarea>
     <hr>
 
-	<button onclick="Module.callMain(['face_joystick.bas', 'face_joystick.asm']); document.getElementById('output').value += '\n\n\nGenerated code: \n' + FS.readFile('face_joystick.asm', { encoding: 'utf8' });">
-		Run
+	<button onclick="window.gui.handleCompileButtonClick()">
+		Compile program
 	</button>
     <hr>	
 
@@ -67,6 +67,14 @@
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
       var spinnerElement = document.getElementById('spinner');
+	  
+	  window.gui = {
+		handleCompileButtonClick: () => {
+			const outputElement = document.getElementById('output');
+			Module.callMain(['face_joystick.bas', 'face_joystick.asm']);
+			outputElement.value += '\n\n\nGenerated code: \n' + FS.readFile('face_joystick.asm', { encoding: 'utf8' });
+		}
+	  };
 
       var Module = {
         preRun: [],
