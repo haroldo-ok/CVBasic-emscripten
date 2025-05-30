@@ -77,15 +77,13 @@
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
-	  const selectTextOnElement = (element, textToFind) => {
-		const text = element.textContent;
+	  const selectTextOnInput = (element, textToFind) => {
+		const text = element.value;
 		const startIndex = text.indexOf(textToFind);
 		const endIndex = startIndex + textToFind.length;
-		const range = document.createRange();
-		range.setStart(element.firstChild, startIndex);
-		range.setEnd(element.firstChild, endIndex);
-		window.getSelection().removeAllRanges();
-		window.getSelection().addRange(range);
+
+		element.focus();
+		element.setSelectionRange(startIndex, endIndex);
 	  };
 	  
 	  window.gui = {
@@ -96,7 +94,7 @@
 			Module.callMain(['face_joystick.bas', 'face_joystick.asm']);
 			
 			generatedAsmElement.value += FS.readFile('face_joystick.asm', { encoding: 'utf8' });
-			selectTextOnElement(generatedAsmElement, 'CVBasic program start');
+			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
 		}
 	  };
 
