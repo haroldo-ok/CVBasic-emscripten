@@ -56,11 +56,16 @@
     
     <hr/>
 	
+	<h3>CVBasic source code</h3>
+    <textarea class="emscripten" id="input-basic" rows="16" readonly></textarea>
+    <hr/>
+
 	<button onclick="window.gui.handleCompileButtonClick()">
 		Compile program
 	</button>
     <hr>	
 
+	<h3>Generated ASM</h3>
     <textarea class="emscripten" id="generated-asm" rows="16"></textarea>
     <hr/>
 
@@ -72,10 +77,15 @@
       var progressElement = document.getElementById('progress');
       var spinnerElement = document.getElementById('spinner');
 	  
+      const inputBasicElement = document.getElementById('generated-basic');
       const generatedAsmElement = document.getElementById('generated-asm');
       const outputElement = document.getElementById('output');
       generatedAsmElement.value = '';
       outputElement.value = '';
+	  
+      window.setTimeout(() => inputBasicElement.value = FS.readFile('face_joystick.asm', { encoding: 'utf8' }), 3000);
+      
+
 	  
 	  const selectTextOnInput = (element, textToFind) => {
 		const text = element.value;
@@ -166,6 +176,7 @@
         };
       };
     </script>
+	
     <script async type="text/javascript" src="cvbasic.js"></script>
   </body>
 </html>
