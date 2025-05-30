@@ -55,24 +55,56 @@
     </div>
     
     <hr/>
-    <textarea class="emscripten" id="output" rows="16"></textarea>
-    <hr>
+	
+	<h3>CVBasic source code</h3>
+    <textarea class="emscripten" id="input-basic" rows="16" readonly></textarea>
+    <hr/>
 
 	<button onclick="window.gui.handleCompileButtonClick()">
 		Compile program
 	</button>
     <hr>	
 
+	<h3>Generated ASM</h3>
+    <textarea class="emscripten" id="generated-asm" rows="16"></textarea>
+    <hr/>
+
+    <textarea class="emscripten" id="output" rows="6"></textarea>
+    <hr>
+
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
       var spinnerElement = document.getElementById('spinner');
 	  
+      const inputBasicElement = document.getElementById('generated-basic');
+      const generatedAsmElement = document.getElementById('generated-asm');
+      const outputElement = document.getElementById('output');
+      generatedAsmElement.value = '';
+      outputElement.value = '';
+	  
+      window.setTimeout(() => inputBasicElement.value = FS.readFile('face_joystick.asm', { encoding: 'utf8' }), 3000);
+      
+
+	  
+	  const selectTextOnInput = (element, textToFind) => {
+		const text = element.value;
+		const startIndex = text.indexOf(textToFind);
+		const endIndex = startIndex + textToFind.length;
+
+		element.focus();
+		element.setSelectionRange(startIndex, endIndex);
+	  };
+	  
 	  window.gui = {
-		handleCompileButtonClick: () => {
-			const outputElement = document.getElementById('output');
+		handleCompileButtonClick: () => {			
+			generatedAsmElement.value = '';
+			outputElement.value = '';
+			
 			Module.callMain(['face_joystick.bas', 'face_joystick.asm']);
-			outputElement.value += '\n\n\nGenerated code: \n' + FS.readFile('face_joystick.asm', { encoding: 'utf8' });
+			
+			generatedAsmElement.value += FS.readFile('face_joystick.asm', { encoding: 'utf8' });
+			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
 		}
 	  };
 
@@ -102,7 +134,7 @@
           if (0) { // XXX disabled for safety typeof dump == 'function') {
             dump(text + '\n'); // fast, straight to the real console
           } else {
-            console.error(text);
+            console.warn(text);
             if (element) {
               element.value += text + "\n";
               element.scrollTop = element.scrollHeight; // focus on bottom
@@ -144,6 +176,7 @@
         };
       };
     </script>
+	
     <script async type="text/javascript" src="cvbasic.js"></script>
   </body>
 </html>
