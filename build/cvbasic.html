@@ -57,7 +57,7 @@
     <hr/>
 	
 	<h3>CVBasic source code</h3>
-    <textarea class="emscripten" id="input-basic" rows="16" readonly></textarea>
+    <textarea class="emscripten" id="input-basic" rows="16"></textarea>
     <hr/>
 
 	<button onclick="window.gui.handleCompileButtonClick()">
@@ -66,10 +66,10 @@
     <hr>	
 
 	<h3>Generated ASM</h3>
-    <textarea class="emscripten" id="generated-asm" rows="16"></textarea>
+    <textarea class="emscripten" id="generated-asm" rows="16" readonly></textarea>
     <hr/>
 
-    <textarea class="emscripten" id="output" rows="6"></textarea>
+    <textarea class="emscripten" id="output" rows="6" readonly></textarea>
     <hr>
 
     <script type='text/javascript'>
@@ -93,13 +93,19 @@
 	  };
 	  
 	  window.gui = {
-		handleCompileButtonClick: () => {			
+		handleCompileButtonClick: () => {
+			const SOURCE_NAME = 'game';
+			const SOURCE_BAS = SOURCE_NAME + '.bas';
+			const SOURCE_ASM = SOURCE_NAME + '.asm';
+			
 			generatedAsmElement.value = '';
 			outputElement.value = '';
 			
-			Module.callMain(['face_joystick.bas', 'face_joystick.asm']);
+			FS.writeFile(SOURCE_BAS, inputBasicElement.value, { encoding: 'utf8' });
 			
-			generatedAsmElement.value += FS.readFile('face_joystick.asm', { encoding: 'utf8' });
+			Module.callMain([SOURCE_BAS, SOURCE_ASM]);
+			
+			generatedAsmElement.value += FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
 			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
 		}
 	  };
