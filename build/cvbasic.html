@@ -6,7 +6,7 @@
     <title>Emscripten-Generated Code</title>
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
-      textarea.emscripten { font-family: monospace; width: 80%; }
+      textarea.emscripten { font-family: "Press Start 2P", monospace; font-size: 8px; width: calc(100% - 1em); }
       div.emscripten { text-align: center; }
       div.emscripten_border { border: 1px solid black; }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
@@ -44,49 +44,72 @@
         to {transform: rotate(360deg);}
       }
 
+	  .side-by-side {
+		display: flex;
+	  }
+	  .side-by-side > .left {
+		flex: 0 0 50%
+	  }
+	  .side-by-side > .right {
+		flex: 1;
+	  }
     </style>
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+    <link href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet" />  </head>
   </head>
   <body>
-    <hr/>
     <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>  
     </div>
     
-    <hr/>
-	
-	<h3>CVBasic source code</h3>
-    <textarea class="emscripten" id="input-basic" rows="16" readonly></textarea>
-    <hr/>
+	<div class="side-by-side">
+		<div class="left nes-container with-title">
+			<h3 class="title">CVBasic source code</h3>
+			<textarea class="emscripten nes-textarea" id="input-basic" rows="32"></textarea>
+		</div>
+		<div class="right nes-container with-title">
+			<h3 class="title">
+				<button class="nes-btn is-primary" onclick="window.gui.handleCompileButtonClick()">
+					▶️ Compile program
+				</button>
+				<label>Generated ASM</label>
+			</h3>
+			<textarea class="emscripten nes-textarea" id="generated-asm" rows="32" readonly></textarea>
+		</div>
+	</div>	
 
-	<button onclick="window.gui.handleCompileButtonClick()">
-		Compile program
-	</button>
-    <hr>	
-
-	<h3>Generated ASM</h3>
-    <textarea class="emscripten" id="generated-asm" rows="16"></textarea>
-    <hr/>
-
-    <textarea class="emscripten" id="output" rows="6"></textarea>
-    <hr>
+	<div class="nes-container with-title">
+		<h3 class="title">Messages</h3>
+		<textarea class="emscripten nes-textarea" id="output" rows="6" readonly></textarea>
+	</div>
 
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
       var spinnerElement = document.getElementById('spinner');
 	  
-      const inputBasicElement = document.getElementById('generated-basic');
+      const inputBasicElement = document.getElementById('input-basic');
       const generatedAsmElement = document.getElementById('generated-asm');
       const outputElement = document.getElementById('output');
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
-      window.setTimeout(() => inputBasicElement.value = FS.readFile('face_joystick.asm', { encoding: 'utf8' }), 3000);
-      
+	  const onFileSystemReady = () => {
+		if (!window.FS) {
+			if (onFileSystemReady.retries > 8) {
+				throw new Error('FS failed to load.');
+			}
+			onFileSystemReady.retries++;
+			window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
+			return;
+		}
 
-	  
+		inputBasicElement.value = FS.readFile('face_joystick.bas', { encoding: 'utf8' });
+	  };
+	  window.setTimeout(onFileSystemReady, 50);
+	  	  
 	  const selectTextOnInput = (element, textToFind) => {
 		const text = element.value;
 		const startIndex = text.indexOf(textToFind);
@@ -97,20 +120,27 @@
 	  };
 	  
 	  window.gui = {
-		handleCompileButtonClick: () => {			
+		handleCompileButtonClick: () => {
+			const SOURCE_NAME = 'game';
+			const SOURCE_BAS = SOURCE_NAME + '.bas';
+			const SOURCE_ASM = SOURCE_NAME + '.asm';
+			
 			generatedAsmElement.value = '';
 			outputElement.value = '';
 			
-			Module.callMain(['face_joystick.bas', 'face_joystick.asm']);
+			FS.writeFile(SOURCE_BAS, inputBasicElement.value, { encoding: 'utf8' });
 			
-			generatedAsmElement.value += FS.readFile('face_joystick.asm', { encoding: 'utf8' });
+			Module.callMain([SOURCE_BAS, SOURCE_ASM]);
+			
+			generatedAsmElement.value += FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
 			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
 		}
 	  };
 
       var Module = {
-        preRun: [],
+        preRun: [],		
         postRun: [],
+		
         print: (function() {
           var element = document.getElementById('output');
           if (element) element.value = ''; // clear browser cache
@@ -128,6 +158,7 @@
             }
           };
         })(),
+		
         printErr: function(text) {
           var element = document.getElementById('output');
           text = Array.prototype.slice.call(arguments).join(' ');
@@ -141,6 +172,7 @@
             }
           }
         },
+		
         setStatus: function(text) {
           if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
           if (text === Module.setStatus.text) return;
@@ -178,5 +210,6 @@
     </script>
 	
     <script async type="text/javascript" src="cvbasic.js"></script>
+
   </body>
 </html>
