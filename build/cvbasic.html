@@ -82,9 +82,7 @@
       const outputElement = document.getElementById('output');
       generatedAsmElement.value = '';
       outputElement.value = '';
-	  
-	  window.setTimeout(() => inputBasicElement.value = FS.readFile('face_joystick.bas', { encoding: 'utf8' }), 100);
-	  
+	  	  
 	  const selectTextOnInput = (element, textToFind) => {
 		const text = element.value;
 		const startIndex = text.indexOf(textToFind);
@@ -107,8 +105,9 @@
 	  };
 
       var Module = {
-        preRun: [],
+        preRun: [],		
         postRun: [],
+		
         print: (function() {
           var element = document.getElementById('output');
           if (element) element.value = ''; // clear browser cache
@@ -126,6 +125,7 @@
             }
           };
         })(),
+		
         printErr: function(text) {
           var element = document.getElementById('output');
           text = Array.prototype.slice.call(arguments).join(' ');
@@ -139,6 +139,7 @@
             }
           }
         },
+		
         setStatus: function(text) {
           if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
           if (text === Module.setStatus.text) return;
@@ -163,7 +164,11 @@
         monitorRunDependencies: function(left) {
           this.totalDependencies = Math.max(this.totalDependencies, left);
           Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-        }
+        },
+		
+		onRuntimeInitialized: function() {
+			inputBasicElement.value = FS.readFile('face_joystick.bas', { encoding: 'utf8' });
+		}
       };
       Module.setStatus('Downloading...');
       window.onerror = function() {
