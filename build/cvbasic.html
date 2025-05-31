@@ -82,6 +82,20 @@
       const outputElement = document.getElementById('output');
       generatedAsmElement.value = '';
       outputElement.value = '';
+	  
+	  const onFileSystemReady = () => {
+		if (!window.FS) {
+			if (onFileSystemReady.retries > 8) {
+				throw new Error('FS failed to load.');
+			}
+			onFileSystemReady.retries++;
+			window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
+			return;
+		}
+
+		inputBasicElement.value = FS.readFile('face_joystick.bas', { encoding: 'utf8' });
+	  };
+	  window.setTimeout(onFileSystemReady, 50);
 	  	  
 	  const selectTextOnInput = (element, textToFind) => {
 		const text = element.value;
@@ -170,11 +184,7 @@
         monitorRunDependencies: function(left) {
           this.totalDependencies = Math.max(this.totalDependencies, left);
           Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-        },
-		
-		onRuntimeInitialized: function() {
-			inputBasicElement.value = FS.readFile('face_joystick.bas', { encoding: 'utf8' });
-		}
+        }
       };
       Module.setStatus('Downloading...');
       window.onerror = function() {
