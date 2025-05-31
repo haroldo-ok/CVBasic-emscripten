@@ -77,15 +77,13 @@
       var progressElement = document.getElementById('progress');
       var spinnerElement = document.getElementById('spinner');
 	  
-      const inputBasicElement = document.getElementById('generated-basic');
+      const inputBasicElement = document.getElementById('input-basic');
       const generatedAsmElement = document.getElementById('generated-asm');
       const outputElement = document.getElementById('output');
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
-      window.setTimeout(() => inputBasicElement.value = FS.readFile('face_joystick.asm', { encoding: 'utf8' }), 3000);
-      
-
+	  window.setTimeout(() => inputBasicElement.value = FS.readFile('face_joystick.bas', { encoding: 'utf8' }), 100);
 	  
 	  const selectTextOnInput = (element, textToFind) => {
 		const text = element.value;
@@ -178,5 +176,6 @@
     </script>
 	
     {{{ SCRIPT }}}
+
   </body>
 </html>
