@@ -6,7 +6,7 @@
     <title>Emscripten-Generated Code</title>
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
-      textarea.emscripten { font-family: monospace; width: 80%; }
+      textarea.emscripten { font-family: monospace; width: calc(100% - 1em); }
       div.emscripten { text-align: center; }
       div.emscripten_border { border: 1px solid black; }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
@@ -44,33 +44,41 @@
         to {transform: rotate(360deg);}
       }
 
+	  .side-by-side {
+		display: flex;
+	  }
+	  .side-by-side > .left {
+		flex: 0 0 50%
+	  }
+	  .side-by-side > .right {
+		flex: 1;
+	  }
     </style>
   </head>
   <body>
-    <hr/>
     <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>  
     </div>
     
-    <hr/>
-	
-	<h3>CVBasic source code</h3>
-    <textarea class="emscripten" id="input-basic" rows="16"></textarea>
-    <hr/>
-
-	<button onclick="window.gui.handleCompileButtonClick()">
-		Compile program
-	</button>
-    <hr>	
-
-	<h3>Generated ASM</h3>
-    <textarea class="emscripten" id="generated-asm" rows="16" readonly></textarea>
-    <hr/>
+	<div class="side-by-side">
+		<div class="left">
+			<div><label>CVBasic source code</label></div>
+			<textarea class="emscripten" id="input-basic" rows="16"></textarea>
+		</div>
+		<div class="right">
+			<div>
+				<button onclick="window.gui.handleCompileButtonClick()">
+					▶️ Compile program
+				</button>
+				<label>Generated ASM</label>
+				<textarea class="emscripten" id="generated-asm" rows="16" readonly></textarea>
+			</div>
+		</div>
+	</div>	
 
     <textarea class="emscripten" id="output" rows="6" readonly></textarea>
-    <hr>
 
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
