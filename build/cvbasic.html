@@ -67,16 +67,16 @@
 	<div class="side-by-side">
 		<div class="left nes-container with-title">
 			<h3 class="title">CVBasic source code</h3>
-			<textarea class="emscripten nes-input" id="input-basic" rows="32"></textarea>
+			<textarea class="emscripten nes-textarea" id="input-basic" rows="32"></textarea>
 		</div>
-		<div class="right">
-			<div>
-				<button onclick="window.gui.handleCompileButtonClick()">
+		<div class="right nes-container with-title">
+			<h3 class="title">
+				<button class="nes-btn is-primary" onclick="window.gui.handleCompileButtonClick()">
 					▶️ Compile program
 				</button>
 				<label>Generated ASM</label>
-				<textarea class="emscripten nes-input" id="generated-asm" rows="32" readonly></textarea>
-			</div>
+			</h3>
+			<textarea class="emscripten nes-textarea" id="generated-asm" rows="32" readonly></textarea>
 		</div>
 	</div>	
 
