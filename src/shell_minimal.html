@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Emscripten-Generated Code</title>
+    <title>CVBasic online compiler v0.0.1</title>
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: "Press Start 2P", monospace; font-size: 8px; width: calc(100% - 1em); }
@@ -58,6 +58,8 @@
     <link href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet" />  </head>
   </head>
   <body>
+	<h1 class="nes-text is-primary">CVBasic online compiler v0.0.1</h1>
+  
     <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
@@ -67,7 +69,7 @@
 	<div class="side-by-side">
 		<div class="left nes-container with-title">
 			<h3 class="title">CVBasic source code</h3>
-			<textarea class="emscripten nes-textarea" id="input-basic" rows="32"></textarea>
+			<textarea class="emscripten nes-textarea" id="input-basic" rows="24"></textarea>
 		</div>
 		<div class="right nes-container with-title">
 			<h3 class="title">
@@ -76,7 +78,7 @@
 				</button>
 				<label>Generated ASM</label>
 			</h3>
-			<textarea class="emscripten nes-textarea" id="generated-asm" rows="32" readonly></textarea>
+			<textarea class="emscripten nes-textarea" id="generated-asm" rows="24" readonly></textarea>
 		</div>
 	</div>	
 
