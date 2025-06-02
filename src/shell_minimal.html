@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.1</title>
+    <title>CVBasic online compiler v0.0.2</title>
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: "Press Start 2P", monospace; font-size: 8px; width: calc(100% - 1em); }
@@ -70,7 +70,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.1</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.2</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -85,6 +85,26 @@
 	<div class="side-by-side">
 		<div class="left nes-container with-title">
 			<h3 class="title">CVBasic source code</h3>
+			<p>
+				<div class="nes-select">
+				  <select required id="target-hardware">
+					<option value="">Standard Colecovision (1K RAM)</option>
+					<option value="sg1000">Sega SG-1000/SC-3000 (1K RAM)</option>
+					<option value="msx">MSX</option>
+					<option value="sgm">Colecovision with Opcode's Super Game Module</option>
+					<option value="svi">Spectravideo SVI-318/328 (16K of RAM)</option>
+					<option value="sord">Sord M5 (1K RAM)</option>
+					<option value="memotech">Memotech MTX (64K RAM)</option>
+					<option value="creativision">Vtech Creativision (Dick Smith's Wizzard/Laser 2001), 6502+1K RAM</option>
+					<option value="pencil">Soundic/Hanimex Pencil II (2K RAM)</option>
+					<option value="einstein">Tatung Einstein, generates .com files</option>
+					<option value="pv2000">Casio PV-2000</option>
+					<option value="ti994a">Texas Instruments TI-99/4A (32K RAM)</option>
+					<option value="nabu">NABU PC (64K RAM)</option>
+					<option value="sms">Sega Master System (8K RAM)</option>
+				  </select>
+				</div>
+			</p>
 			<textarea class="emscripten nes-textarea" id="input-basic" rows="24"></textarea>
 		</div>
 		<div class="right nes-container with-title">
@@ -111,6 +131,8 @@
       const inputBasicElement = document.getElementById('input-basic');
       const generatedAsmElement = document.getElementById('generated-asm');
       const outputElement = document.getElementById('output');
+	  const targetHardwareElement = document.getElementById('target-hardware');
+	  
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
@@ -148,7 +170,9 @@
 			
 			FS.writeFile(SOURCE_BAS, inputBasicElement.value, { encoding: 'utf8' });
 			
-			Module.callMain([SOURCE_BAS, SOURCE_ASM]);
+			const hardwareParams = targetHardwareElement.value ? [`--${targetHardwareElement.value}`] : [];
+			const compilerParams = [SOURCE_BAS, SOURCE_ASM];
+			Module.callMain([...hardwareParams, ...compilerParams]);
 			
 			generatedAsmElement.value += FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
 			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
