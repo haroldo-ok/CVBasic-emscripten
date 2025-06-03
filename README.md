@@ -13,12 +13,12 @@ CVBasic-emscripten is an experimental project to compile CVBasic into JavaScript
 
 ## What is CVBasic?
 
-CVBasic is a lightweight BASIC interpreter, designed for educational and retro-computing purposes. This project aims to bring CVBasic to the web by compiling the codebase with Emscripten, allowing users to run CVBasic programs directly in the browser without plugins or installation.
+CVBasic is a lightweight BASIC compiler, designed for educational and retro-computing purposes. This project aims to bring CVBasic to the web by compiling the codebase with Emscripten, allowing users to compile CVBasic programs directly in the browser without plugins or installation.
 
 ## Features
 
-- Run CVBasic programs in your browser
-- Cross-compilation to JavaScript/WebAssembly using Emscripten
+- Compile CVBasic programs in your browser
+- Cross-compilation to Z80/6502
 - No installation needed—just open a web page
 
 ## Usage
