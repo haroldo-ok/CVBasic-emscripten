@@ -1,3 +1,6 @@
 [submodule "CVBasic"]
 	path = CVBasic
 	url = https://github.com/nanochess/CVBasic
+[submodule "gasm80"]
+	path = gasm80
+	url = https://github.com/nanochess/gasm80
