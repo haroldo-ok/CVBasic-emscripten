@@ -146,7 +146,7 @@
 			return;
 		}
 
-		inputBasicElement.value = FS.readFile('face_joystick.bas', { encoding: 'utf8' });
+		inputBasicElement.value = FS.readFile('hello.asm', { encoding: 'utf8' });
 	  };
 	  window.setTimeout(onFileSystemReady, 50);
 	  	  
@@ -162,20 +162,20 @@
 	  window.gui = {
 		handleCompileButtonClick: () => {
 			const SOURCE_NAME = 'game';
-			const SOURCE_BAS = SOURCE_NAME + '.bas';
 			const SOURCE_ASM = SOURCE_NAME + '.asm';
+			const SOURCE_ROM = SOURCE_NAME + '.rom';
+			const SOURCE_LST = SOURCE_NAME + '.lst';
+			const SOURCE_SYM = SOURCE_NAME + '.sym';
 			
 			generatedAsmElement.value = '';
 			outputElement.value = '';
 			
-			FS.writeFile(SOURCE_BAS, inputBasicElement.value, { encoding: 'utf8' });
+			FS.writeFile(SOURCE_ASM, inputBasicElement.value, { encoding: 'utf8' });
 			
-			const hardwareParams = targetHardwareElement.value ? [`--${targetHardwareElement.value}`] : [];
-			const compilerParams = [SOURCE_BAS, SOURCE_ASM];
-			Module.callMain([...hardwareParams, ...compilerParams]);
+			const compilerParams = [SOURCE_ASM, '-o', SOURCE_ROM, '-l', SOURCE_LST, '-s', SOURCE_SYM];
+			Module.callMain(compilerParams);
 			
-			generatedAsmElement.value += FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
-			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
+			generatedAsmElement.value += FS.readFile(SOURCE_LST, { encoding: 'utf8' });
 		}
 	  };
 
