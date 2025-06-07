@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>CVBasic online compiler v0.0.2</title>
+    <style>
+      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      textarea.emscripten { font-family: "Press Start 2P", monospace; font-size: 8px; width: calc(100% - 1em); }
+      div.emscripten { text-align: center; }
+      div.emscripten_border { border: 1px solid black; }
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.emscripten { border: 0px none; }
+
+      .spinner {
+        height: 50px;
+        width: 50px;
+        margin: 0px auto;
+        -webkit-animation: rotation .8s linear infinite;
+        -moz-animation: rotation .8s linear infinite;
+        -o-animation: rotation .8s linear infinite;
+        animation: rotation 0.8s linear infinite;
+        border-left: 10px solid rgb(0,150,240);
+        border-right: 10px solid rgb(0,150,240);
+        border-bottom: 10px solid rgb(0,150,240);
+        border-top: 10px solid rgb(100,0,200);
+        border-radius: 100%;
+        background-color: rgb(200,100,250);
+      }
+      @-webkit-keyframes rotation {
+        from {-webkit-transform: rotate(0deg);}
+        to {-webkit-transform: rotate(360deg);}
+      }
+      @-moz-keyframes rotation {
+        from {-moz-transform: rotate(0deg);}
+        to {-moz-transform: rotate(360deg);}
+      }
+      @-o-keyframes rotation {
+        from {-o-transform: rotate(0deg);}
+        to {-o-transform: rotate(360deg);}
+      }
+      @keyframes rotation {
+        from {transform: rotate(0deg);}
+        to {transform: rotate(360deg);}
+      }
+
+	  .side-by-side {
+		display: flex;
+	  }
+	  .side-by-side > .left {
+		flex: 0 0 50%
+	  }
+	  .side-by-side > .right {
+		flex: 1;
+	  }
+	  
+	  .half-size-font {
+		font-size: 50%;
+	  }
+	  .github-icon {
+		float: right;
+		color: black;
+		padding-top: 1px;
+		padding-right: 1px;
+	  }
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+    <link href="https://unpkg.com/nes.css/css/nes.css" rel="stylesheet" />
+	<link href="https://unpkg.com/nes.icons@latest/css/nes-icons.min.css" rel="stylesheet" />	
+  </head>
+  <body>
+	<h1 class="nes-text is-primary">
+		<label class="is-primary float-right">CVBasic online compiler v0.0.2</label>
+		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
+			<i class="nes-icon github-square half-size-font"></i>
+		</a>
+	</h1>
+  
+    <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
+    <div class="emscripten" id="status">Downloading...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>  
+    </div>
+    
+	<div class="side-by-side">
+		<div class="left nes-container with-title">
+			<h3 class="title">CVBasic source code</h3>
+			<p>
+				<div class="nes-select">
+				  <select required id="target-hardware">
+					<option value="">Standard Colecovision (1K RAM)</option>
+					<option value="sg1000">Sega SG-1000/SC-3000 (1K RAM)</option>
+					<option value="msx">MSX</option>
+					<option value="sgm">Colecovision with Opcode's Super Game Module</option>
+					<option value="svi">Spectravideo SVI-318/328 (16K of RAM)</option>
+					<option value="sord">Sord M5 (1K RAM)</option>
+					<option value="memotech">Memotech MTX (64K RAM)</option>
+					<option value="creativision">Vtech Creativision (Dick Smith's Wizzard/Laser 2001), 6502+1K RAM</option>
+					<option value="pencil">Soundic/Hanimex Pencil II (2K RAM)</option>
+					<option value="einstein">Tatung Einstein, generates .com files</option>
+					<option value="pv2000">Casio PV-2000</option>
+					<option value="ti994a">Texas Instruments TI-99/4A (32K RAM)</option>
+					<option value="nabu">NABU PC (64K RAM)</option>
+					<option value="sms">Sega Master System (8K RAM)</option>
+				  </select>
+				</div>
+			</p>
+			<textarea class="emscripten nes-textarea" id="input-basic" rows="24"></textarea>
+		</div>
+		<div class="right nes-container with-title">
+			<h3 class="title">
+				<button class="nes-btn is-primary" onclick="window.gui.handleCompileButtonClick()">
+					▶️ Compile program
+				</button>
+				<label>Generated ASM</label>
+			</h3>
+			<textarea class="emscripten nes-textarea" id="generated-asm" rows="24" readonly></textarea>
+		</div>
+	</div>	
+
+	<div class="nes-container with-title">
+		<h3 class="title">Messages</h3>
+		<textarea class="emscripten nes-textarea" id="output" rows="6" readonly></textarea>
+	</div>
+
+    <script type='text/javascript'>
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+      var spinnerElement = document.getElementById('spinner');
+	  
+      const inputBasicElement = document.getElementById('input-basic');
+      const generatedAsmElement = document.getElementById('generated-asm');
+      const outputElement = document.getElementById('output');
+	  const targetHardwareElement = document.getElementById('target-hardware');
+	  
+      generatedAsmElement.value = '';
+      outputElement.value = '';
+	  
+	  const onFileSystemReady = () => {
+		if (!window.FS) {
+			if (onFileSystemReady.retries > 8) {
+				throw new Error('FS failed to load.');
+			}
+			onFileSystemReady.retries++;
+			window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
+			return;
+		}
+
+		inputBasicElement.value = FS.readFile('face_joystick.bas', { encoding: 'utf8' });
+	  };
+	  window.setTimeout(onFileSystemReady, 50);
+	  	  
+	  const selectTextOnInput = (element, textToFind) => {
+		const text = element.value;
+		const startIndex = text.indexOf(textToFind);
+		const endIndex = startIndex + textToFind.length;
+
+		element.focus();
+		element.setSelectionRange(startIndex, endIndex);
+	  };
+	  
+	  window.gui = {
+		handleCompileButtonClick: () => {
+			const SOURCE_NAME = 'game';
+			const SOURCE_BAS = SOURCE_NAME + '.bas';
+			const SOURCE_ASM = SOURCE_NAME + '.asm';
+			
+			generatedAsmElement.value = '';
+			outputElement.value = '';
+			
+			FS.writeFile(SOURCE_BAS, inputBasicElement.value, { encoding: 'utf8' });
+			
+			const hardwareParams = targetHardwareElement.value ? [`--${targetHardwareElement.value}`] : [];
+			const compilerParams = [SOURCE_BAS, SOURCE_ASM];
+			Module.callMain([...hardwareParams, ...compilerParams]);
+			
+			generatedAsmElement.value += FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
+			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
+		}
+	  };
+
+      var Module = {
+        preRun: [],		
+        postRun: [],
+		
+        print: (function() {
+          var element = document.getElementById('output');
+          if (element) element.value = ''; // clear browser cache
+          return function(text) {
+            text = Array.prototype.slice.call(arguments).join(' ');
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            console.log(text);
+            if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight; // focus on bottom
+            }
+          };
+        })(),
+		
+        printErr: function(text) {
+          var element = document.getElementById('output');
+          text = Array.prototype.slice.call(arguments).join(' ');
+          if (0) { // XXX disabled for safety typeof dump == 'function') {
+            dump(text + '\n'); // fast, straight to the real console
+          } else {
+            console.warn(text);
+            if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight; // focus on bottom
+            }
+          }
+        },
+		
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Date.now() < 30) return; // if this is a progress update, skip it if too soon
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+            spinnerElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+            if (!text) spinnerElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      Module.setStatus('Downloading...');
+      window.onerror = function() {
+        Module.setStatus('Exception thrown, see JavaScript console');
+        spinnerElement.style.display = 'none';
+        Module.setStatus = function(text) {
+          if (text) Module.printErr('[post-exception status] ' + text);
+        };
+      };
+    </script>
+	
+    <script async type="text/javascript" src="cvbasic.js"></script>
+
+	 <iframe src="./gasm80-iframe.html" title="gasm80"></iframe>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>gasm80 online assembler v0.0.1</title>
+  </head>
+  <body>
+    <script type='text/javascript'>
+      var Module = {
+        preRun: [],		
+        postRun: [],
+		
+        print: function(text) {
+			top.Module.print(text);
+		},
+		
+        printErr: function(text) {
+		  top.Module.printErr(text);
+        },
+		
+        setStatus: function(text) {
+		  top.Module.setStatus(text);
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          console.log(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      Module.setStatus('Downloading...');
+      window.onerror = function() {
+		top.onerror();
+      };
+    </script>
+	
+    <script async type="text/javascript" src="gasm80.js"></script>
+  </body>
+</html>
