@@ -173,13 +173,13 @@
 			FS.writeFile(SOURCE_ASM, inputBasicElement.value, { encoding: 'utf8' });
 			
 			const compilerParams = [SOURCE_ASM, '-o', SOURCE_ROM, '-l', SOURCE_LST, '-s', SOURCE_SYM];
-			Module.callMain(compilerParams);
+			Gasm80.callMain(compilerParams);
 			
 			generatedAsmElement.value += FS.readFile(SOURCE_LST, { encoding: 'utf8' });
 		}
 	  };
 
-      var Module = {
+      var Gasm80Module = {
         preRun: [],		
         postRun: [],
 		
@@ -216,8 +216,8 @@
         },
 		
         setStatus: function(text) {
-          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
-          if (text === Module.setStatus.text) return;
+          if (!Gasm80Module.setStatus.last) Gasm80Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Gasm80Module.setStatus.text) return;
           var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
           var now = Date.now();
           if (m && now - Date.now() < 30) return; // if this is a progress update, skip it if too soon
@@ -238,20 +238,27 @@
         totalDependencies: 0,
         monitorRunDependencies: function(left) {
           this.totalDependencies = Math.max(this.totalDependencies, left);
-          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+          Gasm80Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
         }
       };
-      Module.setStatus('Downloading...');
+      Gasm80Module.setStatus('Downloading...');
       window.onerror = function() {
-        Module.setStatus('Exception thrown, see JavaScript console');
+        Gasm80Module.setStatus('Exception thrown, see JavaScript console');
         spinnerElement.style.display = 'none';
-        Module.setStatus = function(text) {
-          if (text) Module.printErr('[post-exception status] ' + text);
+        Gasm80Module.setStatus = function(text) {
+          if (text) Gasm80Module.printErr('[post-exception status] ' + text);
         };
       };
     </script>
 	
     {{{ SCRIPT }}}
+	
+	<script>
+		window.setTimeout(() => {
+			Object.entries(Gasm80Module).forEach(([k, v]) => Gasm80[k] = v);
+			Gasm80Module.setStatus('');
+		}, 0);
+	</script>
 
   </body>
 </html>
