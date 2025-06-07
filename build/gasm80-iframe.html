@@ -7,6 +7,44 @@
   </head>
   <body>
     <script type='text/javascript'>
+	  const codeToAssemble = top.document.getElementById('generated-asm').value;
+	  
+	  const assembleCode = (asmCode) => {
+		if (!asmCode) {
+			console.warn('Nothing to assemble');
+			return;
+		}
+		
+		const SOURCE_NAME = 'game';
+		const SOURCE_ASM = SOURCE_NAME + '.asm';
+		const SOURCE_ROM = SOURCE_NAME + '.rom';
+		const SOURCE_LST = SOURCE_NAME + '.lst';
+		const SOURCE_SYM = SOURCE_NAME + '.sym';
+		
+		console.info('Assembling');
+		FS.writeFile(SOURCE_ASM, asmCode, { encoding: 'utf8' });
+		
+		const compilerParams = [SOURCE_ASM, '-o', SOURCE_ROM, '-l', SOURCE_LST, '-s', SOURCE_SYM];
+		Gasm80.callMain(compilerParams);
+		
+		const listing = FS.readFile(SOURCE_LST, { encoding: 'utf8' });
+		console.info('listing', listing);
+	  };
+	
+	  const onFileSystemReady = () => {
+		if (window.FS) {
+			assembleCode(codeToAssemble);
+		} else {
+			if (onFileSystemReady.retries > 8) {
+				throw new Error('FS failed to load.');
+			}
+			onFileSystemReady.retries++;
+			window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
+		}
+
+	  };
+	  window.setTimeout(onFileSystemReady, 50);
+
       var Module = {
         preRun: [],		
         postRun: [],
