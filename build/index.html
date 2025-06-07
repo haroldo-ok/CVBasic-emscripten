@@ -176,6 +176,9 @@
 			
 			generatedAsmElement.value += FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
 			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
+			
+			const gasm80Iframe = document.getElementById('gasm80-iframe');
+			gasm80Iframe.src = gasm80Iframe.src;
 		}
 	  };
 
@@ -253,6 +256,6 @@
 	
     <script async type="text/javascript" src="cvbasic.js"></script>
 
-	 <iframe src="./gasm80-iframe.html" title="gasm80"></iframe>
   </body>
+	 <iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80"></iframe>
 </html>
