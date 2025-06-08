@@ -21,14 +21,16 @@
 		const SOURCE_LST = SOURCE_NAME + '.lst';
 		const SOURCE_SYM = SOURCE_NAME + '.sym';
 		
-		console.info('Assembling');
+		Module.print('Assembling...');
 		FS.writeFile(SOURCE_ASM, asmCode, { encoding: 'utf8' });
 		
 		const compilerParams = [SOURCE_ASM, '-o', SOURCE_ROM, '-l', SOURCE_LST, '-s', SOURCE_SYM];
 		Gasm80.callMain(compilerParams);
+
+		Module.print('Assembled.');
 		
-		const listing = FS.readFile(SOURCE_LST, { encoding: 'utf8' });
-		console.info('listing', listing);
+		const generatedROM = FS.readFile(SOURCE_ROM);
+		top.saveAs(new Blob([generatedROM]), 'game-' + new Date().toISOString() + '.rom');
 	  };
 	
 	  const onFileSystemReady = () => {
