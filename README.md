@@ -4,6 +4,8 @@
 
 CVBasic-emscripten is an experimental project to compile CVBasic into JavaScript using Emscripten, enabling it to run directly in the browser.
 
+You can acess it from this link: https://haroldo-ok.github.io/CVBasic-emscripten/
+
 ## Overview
 
 - **Repository:** [haroldo-ok/CVBasic-emscripten](https://github.com/haroldo-ok/CVBasic-emscripten)
