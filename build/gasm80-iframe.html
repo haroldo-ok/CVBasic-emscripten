@@ -7,7 +7,7 @@
   </head>
   <body>
     <script type='text/javascript'>
-	  const codeToAssemble = top.document.getElementById('generated-asm').value;
+	  const codeToAssemble = top.generatedAssemblyCode;
 	  
 	  const assembleCode = (asmCode) => {
 		if (!asmCode) {
@@ -33,7 +33,7 @@
 	
 	  const onFileSystemReady = () => {
 		if (window.FS) {
-			assembleCode(codeToAssemble);
+			codeToAssemble && assembleCode(codeToAssemble.join('\n'));
 		} else {
 			if (onFileSystemReady.retries > 8) {
 				throw new Error('FS failed to load.');

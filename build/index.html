@@ -136,6 +136,8 @@
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
+	  window.generatedAssemblyCode = null;
+	  
 	  const onFileSystemReady = () => {
 		if (!window.FS) {
 			if (onFileSystemReady.retries > 8) {
@@ -165,8 +167,9 @@
 			const SOURCE_BAS = SOURCE_NAME + '.bas';
 			const SOURCE_ASM = SOURCE_NAME + '.asm';
 			
+			window.generatedAssemblyCode = null;
 			generatedAsmElement.value = '';
-			outputElement.value = '';
+			outputElement.value = '';			
 			
 			FS.writeFile(SOURCE_BAS, inputBasicElement.value, { encoding: 'utf8' });
 			
@@ -174,9 +177,13 @@
 			const compilerParams = [SOURCE_BAS, SOURCE_ASM];
 			Module.callMain([...hardwareParams, ...compilerParams]);
 			
-			generatedAsmElement.value += FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
+			generatedAsmElement.value = FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
 			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
 			
+			// Used to communicate with the iframe while taking string length limitatiions into consideration.
+			window.generatedAssemblyCode = generatedAsmElement.value.split('\n');
+
+			// TODO: Fix this ugly hack, but taking into consideration that "gasm80" doesn't clean variables between runs.
 			const gasm80Iframe = document.getElementById('gasm80-iframe');
 			gasm80Iframe.src = gasm80Iframe.src;
 		}
@@ -256,6 +263,6 @@
 	
     <script async type="text/javascript" src="cvbasic.js"></script>
 
+	 <iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80" style="display: none"></iframe>
   </body>
-	 <iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80"></iframe>
 </html>
