@@ -22,9 +22,10 @@
 		const SOURCE_SYM = SOURCE_NAME + '.sym';
 		
 		Module.print('Assembling...');
-		FS.writeFile(SOURCE_ASM, asmCode, { encoding: 'utf8' });
+		FS.writeFile(SOURCE_ASM, asmCode, { encoding: 'utf8' });		
 		
-		const compilerParams = [SOURCE_ASM, '-o', SOURCE_ROM, '-l', SOURCE_LST, '-s', SOURCE_SYM];
+		const platformParams = top.document.getElementById('target-hardware').value == 'sms' ? ['-sms'] : [];
+		const compilerParams = [SOURCE_ASM, '-o', SOURCE_ROM, '-l', SOURCE_LST, '-s', SOURCE_SYM, ...platformParams];
 		Gasm80.callMain(compilerParams);
 
 		Module.print('Assembled.');
