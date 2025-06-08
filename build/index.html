@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>gasm80 online assembler v0.0.1</title>
+    <title>CVBasic online compiler v0.0.2</title>
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: "Press Start 2P", monospace; font-size: 8px; width: calc(100% - 1em); }
@@ -70,7 +70,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">gasm80 online assembler v0.0.1</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.2</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -136,6 +136,8 @@
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
+	  window.generatedAssemblyCode = null;
+	  
 	  const onFileSystemReady = () => {
 		if (!window.FS) {
 			if (onFileSystemReady.retries > 8) {
@@ -146,7 +148,7 @@
 			return;
 		}
 
-		inputBasicElement.value = FS.readFile('hello.asm', { encoding: 'utf8' });
+		inputBasicElement.value = FS.readFile('face_joystick.bas', { encoding: 'utf8' });
 	  };
 	  window.setTimeout(onFileSystemReady, 50);
 	  	  
@@ -162,24 +164,32 @@
 	  window.gui = {
 		handleCompileButtonClick: () => {
 			const SOURCE_NAME = 'game';
+			const SOURCE_BAS = SOURCE_NAME + '.bas';
 			const SOURCE_ASM = SOURCE_NAME + '.asm';
-			const SOURCE_ROM = SOURCE_NAME + '.rom';
-			const SOURCE_LST = SOURCE_NAME + '.lst';
-			const SOURCE_SYM = SOURCE_NAME + '.sym';
 			
+			window.generatedAssemblyCode = null;
 			generatedAsmElement.value = '';
-			outputElement.value = '';
+			outputElement.value = '';			
 			
-			FS.writeFile(SOURCE_ASM, inputBasicElement.value, { encoding: 'utf8' });
+			FS.writeFile(SOURCE_BAS, inputBasicElement.value, { encoding: 'utf8' });
 			
-			const compilerParams = [SOURCE_ASM, '-o', SOURCE_ROM, '-l', SOURCE_LST, '-s', SOURCE_SYM];
-			Gasm80.callMain(compilerParams);
+			const hardwareParams = targetHardwareElement.value ? [`--${targetHardwareElement.value}`] : [];
+			const compilerParams = [SOURCE_BAS, SOURCE_ASM];
+			Module.callMain([...hardwareParams, ...compilerParams]);
 			
-			generatedAsmElement.value += FS.readFile(SOURCE_LST, { encoding: 'utf8' });
+			generatedAsmElement.value = FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
+			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
+			
+			// Used to communicate with the iframe while taking string length limitatiions into consideration.
+			window.generatedAssemblyCode = generatedAsmElement.value.split('\n');
+
+			// TODO: Fix this ugly hack, but taking into consideration that "gasm80" doesn't clean variables between runs.
+			const gasm80Iframe = document.getElementById('gasm80-iframe');
+			gasm80Iframe.src = gasm80Iframe.src;
 		}
 	  };
 
-      var Gasm80Module = {
+      var Module = {
         preRun: [],		
         postRun: [],
 		
@@ -216,8 +226,8 @@
         },
 		
         setStatus: function(text) {
-          if (!Gasm80Module.setStatus.last) Gasm80Module.setStatus.last = { time: Date.now(), text: '' };
-          if (text === Gasm80Module.setStatus.text) return;
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.text) return;
           var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
           var now = Date.now();
           if (m && now - Date.now() < 30) return; // if this is a progress update, skip it if too soon
@@ -238,27 +248,22 @@
         totalDependencies: 0,
         monitorRunDependencies: function(left) {
           this.totalDependencies = Math.max(this.totalDependencies, left);
-          Gasm80Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
         }
       };
-      Gasm80Module.setStatus('Downloading...');
+      Module.setStatus('Downloading...');
       window.onerror = function() {
-        Gasm80Module.setStatus('Exception thrown, see JavaScript console');
+        Module.setStatus('Exception thrown, see JavaScript console');
         spinnerElement.style.display = 'none';
-        Gasm80Module.setStatus = function(text) {
-          if (text) Gasm80Module.printErr('[post-exception status] ' + text);
+        Module.setStatus = function(text) {
+          if (text) Module.printErr('[post-exception status] ' + text);
         };
       };
     </script>
 	
-    {{{ SCRIPT }}}
-	
-	<script>
-		window.setTimeout(() => {
-			Object.entries(Gasm80Module).forEach(([k, v]) => Gasm80[k] = v);
-			Gasm80Module.setStatus('');
-		}, 0);
-	</script>
+    <script async type="text/javascript" src="FileSaver.js"></script>
+    <script async type="text/javascript" src="cvbasic.js"></script>
 
+	 <iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80" style="display: none"></iframe>
   </body>
 </html>
