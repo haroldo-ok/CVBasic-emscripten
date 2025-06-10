@@ -1,5 +1,5 @@
 setlocal
-cd build
+cd docs
 python -m SimpleHTTPServer
 cd ..
 endlocal
