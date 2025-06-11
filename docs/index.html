@@ -86,6 +86,15 @@
 		<div class="left nes-container with-title">
 			<h3 class="title">CVBasic source code</h3>
 			<p>
+ 			    <label for="example-sources">Example:</label>
+				<div class="nes-select">
+				  <select required id="example-sources">
+					<option value="">-- none --</option>
+				  </select>
+				</div>
+			</p>
+			<p>
+			    <label for="target-hardware">Target:</label>
 				<div class="nes-select">
 				  <select required id="target-hardware">
 					<option value="">Standard Colecovision (1K RAM)</option>
@@ -131,6 +140,7 @@
       const inputBasicElement = document.getElementById('input-basic');
       const generatedAsmElement = document.getElementById('generated-asm');
       const outputElement = document.getElementById('output');
+	  const exampleSourcesElement = document.getElementById('example-sources');
 	  const targetHardwareElement = document.getElementById('target-hardware');
 	  
       generatedAsmElement.value = '';
@@ -149,6 +159,9 @@
 		}
 
 		inputBasicElement.value = FS.readFile('examples/face_joystick.bas', { encoding: 'utf8' });
+		
+		const exampleFileNames = FS.readdir('examples').filter(name => name.endsWith('.bas'));
+		exampleFileNames.forEach(fileName => exampleSourcesElement.add(new Option(fileName)));
 	  };
 	  window.setTimeout(onFileSystemReady, 50);
 	  	  
