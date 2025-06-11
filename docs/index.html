@@ -166,6 +166,9 @@
 		exampleFileNames.forEach(fileName => exampleSourcesElement.add(new Option(fileName)));
 
 		loadExample('face_joystick.bas');
+		exampleSourcesElement.addEventListener('click', () => {
+			if (exampleSourcesElement.value) loadExample(exampleSourcesElement.value);
+		});
 	  };
 	  window.setTimeout(onFileSystemReady, 50);
 	  	  
