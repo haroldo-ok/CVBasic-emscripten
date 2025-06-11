@@ -157,11 +157,15 @@
 			window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
 			return;
 		}
-
-		inputBasicElement.value = FS.readFile('examples/face_joystick.bas', { encoding: 'utf8' });
 		
+		const loadExample = fileName => {
+			inputBasicElement.value = FS.readFile('examples/' + fileName, { encoding: 'utf8' });		
+		};
+
 		const exampleFileNames = FS.readdir('examples').filter(name => name.endsWith('.bas'));
 		exampleFileNames.forEach(fileName => exampleSourcesElement.add(new Option(fileName)));
+
+		loadExample('face_joystick.bas');
 	  };
 	  window.setTimeout(onFileSystemReady, 50);
 	  	  
