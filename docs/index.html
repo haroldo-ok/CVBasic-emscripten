@@ -122,6 +122,9 @@
 				</button>
 				<label>Generated ASM</label>
 			</h3>
+			<div style="width:100%; aspect-ratio: 640 / 480; background: blue">
+				<div id="emulator"></div>
+			</div>
 			<textarea class="emscripten nes-textarea" id="generated-asm" rows="24" readonly></textarea>
 		</div>
 	</div>	
@@ -283,6 +286,14 @@
     <script async type="text/javascript" src="FileSaver.js"></script>
     <script async type="text/javascript" src="cvbasic.js"></script>
 
-	 <iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80" style="display: none"></iframe>
+	<iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80" style="display: none"></iframe>
+	 
+	<script>
+		EJS_player = "#emulator";
+		EJS_core = "coleco";
+		EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+		//EJS_gameUrl = "https://allancoding-website-files.on.drv.tw/ROM_FILE_NAME_&_PATH.zip";
+	</script>
+	<script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>	 
   </body>
 </html>
