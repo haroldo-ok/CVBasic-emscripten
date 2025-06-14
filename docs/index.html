@@ -215,6 +215,7 @@
 			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
 			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
 			
+			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
 			await EJS_emulator.downloadBios();
 			EJS_emulator.createText();
 			await EJS_emulator.downloadGameCore();
@@ -305,5 +306,6 @@
 		EJS_gameUrl = null;
 	</script>
 	<script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>	 
+	<script src="https://cdn.emulatorjs.org/stable/data/emulator.js"></script>	 
   </body>
 </html>
