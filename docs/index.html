@@ -54,6 +54,16 @@
 		flex: 1;
 	  }
 	  
+	  .emulator-container {
+		width:100%;
+		aspect-ratio: 640 / 480;
+		background: blue;
+	  }
+	  
+	  .emulator-container.unused #emulator {
+		visibility: hidden;
+	  }
+	  
 	  .half-size-font {
 		font-size: 50%;
 	  }
@@ -122,7 +132,7 @@
 				</button>
 				<label>Generated ASM</label>
 			</h3>
-			<div style="width:100%; aspect-ratio: 640 / 480; background: blue">
+			<div class="emulator-container unused">
 				<div id="emulator"></div>
 			</div>
 			<textarea class="emscripten nes-textarea" id="generated-asm" rows="24" readonly></textarea>
@@ -144,6 +154,7 @@
       const outputElement = document.getElementById('output');
 	  const exampleSourcesElement = document.getElementById('example-sources');
 	  const targetHardwareElement = document.getElementById('target-hardware');
+	  const emulatorContainerElement = document.getElementsByClassName('emulator-container')[0];
 	  
 	  const EMULATOR_CORE_NAMES = {
 		'': 'coleco',
@@ -231,6 +242,9 @@
 			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
 			
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
+			
+			emulatorContainerElement.classList.remove('unused');
+			
 			await EJS_emulator.downloadBios();
 			EJS_emulator.createText();
 			await EJS_emulator.downloadGameCore();
