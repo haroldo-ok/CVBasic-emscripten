@@ -143,9 +143,13 @@
 				<button class="nes-btn is-primary" onclick="window.gui.handleCompileButtonClick()">
 					▶️ Compile program
 				</button>
-				<label>Generated ASM</label>
+				<label>Generated ROM</label>
 			</h3>
 			
+			<button class="nes-btn is-secondary" onclick="window.gui.handleDownloadButtonClick()">
+				⤓ Download Generated ROM
+			</button>
+
 			<div class="emulator-container unused">
 				<label class="no-emulator-available">No emulator available, yet.</label>
 				<div id="emulator"></div>
@@ -246,11 +250,22 @@
 			gasm80Iframe.src = gasm80Iframe.src;
 		},
 		
+		handleDownloadButtonClick: () => {
+			if (!window.generatedROM) {
+				alert('Sorry, but youm must compile something, first.');
+				return;
+			}
+			
+			saveAs(new Blob([window.generatedROM]), 'game-' + new Date().toISOString() + '.rom');
+		},
+		
 		closeEmulator: () => {
 			EJS_emulator.callEvent('exit');
 		},
 		
 		updateEmulator: async (generatedROM) => {
+			window.generatedROM = generatedROM;
+		
 			const base64String = btoa(String.fromCharCode(...generatedROM));
 			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
 			
