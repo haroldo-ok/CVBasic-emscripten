@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.4</title>
+    <title>CVBasic online compiler v0.0.5</title>
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: "Press Start 2P", monospace; font-size: 8px; width: calc(100% - 1em); }
@@ -54,6 +54,29 @@
 		flex: 1;
 	  }
 	  
+	  .emulator-container {
+		width:100%;
+		aspect-ratio: 640 / 480;
+		background: blue;
+	  }
+	  
+	  .emulator-container.no-emulator-available {
+	    aspect-ratio: auto;
+		background: none;
+	  }
+
+	  .emulator-container.no-emulator-available #emulator {
+		display: none;
+	  }
+	  
+	  .emulator-container:not(.no-emulator-available) .no-emulator-available {
+		display: none;
+	  }
+	  
+	  .emulator-container.unused #emulator {
+		visibility: hidden;
+	  }
+	  
 	  .half-size-font {
 		font-size: 50%;
 	  }
@@ -70,7 +93,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.4</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.5</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -120,8 +143,18 @@
 				<button class="nes-btn is-primary" onclick="window.gui.handleCompileButtonClick()">
 					▶️ Compile program
 				</button>
-				<label>Generated ASM</label>
+				<label>Generated ROM</label>
 			</h3>
+			
+			<button class="nes-btn is-secondary" onclick="window.gui.handleDownloadButtonClick()">
+				⤓ Download Generated ROM
+			</button>
+
+			<div class="emulator-container unused">
+				<label class="no-emulator-available">No emulator available, yet.</label>
+				<div id="emulator"></div>
+			</div>
+			
 			<textarea class="emscripten nes-textarea" id="generated-asm" rows="24" readonly></textarea>
 		</div>
 	</div>	
@@ -141,6 +174,14 @@
       const outputElement = document.getElementById('output');
 	  const exampleSourcesElement = document.getElementById('example-sources');
 	  const targetHardwareElement = document.getElementById('target-hardware');
+	  const emulatorContainerElement = document.getElementsByClassName('emulator-container')[0];
+	  
+	  const EMULATOR_CORE_NAMES = {
+		'': 'coleco',
+		'sg1000': 'segaMS',
+		'sgm': 'coleco',
+		'sms': 'segaMS',
+	  };
 	  
       generatedAsmElement.value = '';
       outputElement.value = '';
@@ -186,6 +227,8 @@
 			const SOURCE_BAS = SOURCE_NAME + '.bas';
 			const SOURCE_ASM = SOURCE_NAME + '.asm';
 			
+			gui.closeEmulator();
+			
 			window.generatedAssemblyCode = null;
 			generatedAsmElement.value = '';
 			outputElement.value = '';			
@@ -205,6 +248,37 @@
 			// TODO: Fix this ugly hack, but taking into consideration that "gasm80" doesn't clean variables between runs.
 			const gasm80Iframe = document.getElementById('gasm80-iframe');
 			gasm80Iframe.src = gasm80Iframe.src;
+		},
+		
+		handleDownloadButtonClick: () => {
+			if (!window.generatedROM) {
+				alert('Sorry, but youm must compile something, first.');
+				return;
+			}
+			
+			saveAs(new Blob([window.generatedROM]), 'game-' + new Date().toISOString() + '.rom');
+		},
+		
+		closeEmulator: () => {
+			EJS_emulator.callEvent('exit');
+		},
+		
+		updateEmulator: async (generatedROM) => {
+			window.generatedROM = generatedROM;
+		
+			const base64String = btoa(String.fromCharCode(...generatedROM));
+			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
+			
+			EJS_emulator.config.system = EMULATOR_CORE_NAMES[targetHardwareElement.value];
+			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
+			
+			emulatorContainerElement.classList.remove('unused');
+			emulatorContainerElement.classList[EJS_emulator.config.system ? 'remove' : 'add']('no-emulator-available');
+
+			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
+			await EJS_emulator.downloadBios();
+			EJS_emulator.createText();
+			await EJS_emulator.downloadGameCore();
 		}
 	  };
 
@@ -283,6 +357,15 @@
     <script async type="text/javascript" src="FileSaver.js"></script>
     <script async type="text/javascript" src="cvbasic.js"></script>
 
-	 <iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80" style="display: none"></iframe>
+	<iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80" style="display: none"></iframe>
+	 
+	<script>
+		EJS_player = "#emulator";
+		EJS_core = "coleco";
+		EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+		EJS_gameUrl = null;
+	</script>
+	<script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>	 
+	<script src="https://cdn.emulatorjs.org/stable/data/emulator.js"></script>	 
   </body>
 </html>
