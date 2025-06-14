@@ -31,7 +31,11 @@
 		Module.print('Assembled.');
 		
 		const generatedROM = FS.readFile(SOURCE_ROM);
-		top.saveAs(new Blob([generatedROM]), 'game-' + new Date().toISOString() + '.rom');
+		
+		window.setTimeout(() => top.gui.updateEmulator(generatedROM), 0);
+		
+		// FIXME: Temporarily removed for emulator testing
+		//top.saveAs(new Blob([generatedROM]), 'game-' + new Date().toISOString() + '.rom');
 	  };
 	
 	  const onFileSystemReady = () => {

@@ -208,6 +208,16 @@
 			// TODO: Fix this ugly hack, but taking into consideration that "gasm80" doesn't clean variables between runs.
 			const gasm80Iframe = document.getElementById('gasm80-iframe');
 			gasm80Iframe.src = gasm80Iframe.src;
+		},
+		
+		updateEmulator: async (generatedROM) => {
+			const base64String = btoa(String.fromCharCode(...generatedROM));
+			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
+			EJS_emulator.config.gameUrl = dataUrl;
+			
+			await EJS_emulator.downloadBios();
+			EJS_emulator.createText();
+			await EJS_emulator.downloadGameCore();
 		}
 	  };
 
