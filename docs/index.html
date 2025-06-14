@@ -60,6 +60,19 @@
 		background: blue;
 	  }
 	  
+	  .emulator-container.no-emulator-available {
+	    aspect-ratio: auto;
+		background: none;
+	  }
+
+	  .emulator-container.no-emulator-available #emulator {
+		display: none;
+	  }
+	  
+	  .emulator-container:not(.no-emulator-available) .no-emulator-available {
+		display: none;
+	  }
+	  
 	  .emulator-container.unused #emulator {
 		visibility: hidden;
 	  }
@@ -132,9 +145,12 @@
 				</button>
 				<label>Generated ASM</label>
 			</h3>
+			
 			<div class="emulator-container unused">
+				<label class="no-emulator-available">No emulator available, yet.</label>
 				<div id="emulator"></div>
 			</div>
+			
 			<textarea class="emscripten nes-textarea" id="generated-asm" rows="24" readonly></textarea>
 		</div>
 	</div>	
@@ -241,10 +257,10 @@
 			EJS_emulator.config.system = EMULATOR_CORE_NAMES[targetHardwareElement.value];
 			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
 			
-			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
-			
 			emulatorContainerElement.classList.remove('unused');
-			
+			emulatorContainerElement.classList[EJS_emulator.config.system ? 'remove' : 'add']('no-emulator-available');
+
+			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
 			await EJS_emulator.downloadBios();
 			EJS_emulator.createText();
 			await EJS_emulator.downloadGameCore();
