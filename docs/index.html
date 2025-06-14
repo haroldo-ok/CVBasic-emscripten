@@ -213,7 +213,7 @@
 		updateEmulator: async (generatedROM) => {
 			const base64String = btoa(String.fromCharCode(...generatedROM));
 			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
-			EJS_emulator.config.gameUrl = dataUrl;
+			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
 			
 			await EJS_emulator.downloadBios();
 			EJS_emulator.createText();
@@ -300,9 +300,9 @@
 	 
 	<script>
 		EJS_player = "#emulator";
-		EJS_core = "coleco";
+		EJS_core = "segaMS";
 		EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-		//EJS_gameUrl = "https://allancoding-website-files.on.drv.tw/ROM_FILE_NAME_&_PATH.zip";
+		EJS_gameUrl = null;
 	</script>
 	<script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>	 
   </body>
