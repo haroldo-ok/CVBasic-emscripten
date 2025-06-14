@@ -145,6 +145,13 @@
 	  const exampleSourcesElement = document.getElementById('example-sources');
 	  const targetHardwareElement = document.getElementById('target-hardware');
 	  
+	  const EMULATOR_CORE_NAMES = {
+		'': 'coleco',
+		'sg1000': 'segaMS',
+		'sgm': 'coleco',
+		'sms': 'segaMS',
+	  };
+	  
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
@@ -189,6 +196,8 @@
 			const SOURCE_BAS = SOURCE_NAME + '.bas';
 			const SOURCE_ASM = SOURCE_NAME + '.asm';
 			
+			gui.closeEmulator();
+			
 			window.generatedAssemblyCode = null;
 			generatedAsmElement.value = '';
 			outputElement.value = '';			
@@ -210,12 +219,17 @@
 			gasm80Iframe.src = gasm80Iframe.src;
 		},
 		
+		closeEmulator: () => {
+			EJS_emulator.callEvent('exit');
+		},
+		
 		updateEmulator: async (generatedROM) => {
 			const base64String = btoa(String.fromCharCode(...generatedROM));
 			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
+			
+			EJS_emulator.config.system = EMULATOR_CORE_NAMES[targetHardwareElement.value];
 			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
 			
-			EJS_emulator.callEvent('exit');
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
 			await EJS_emulator.downloadBios();
 			EJS_emulator.createText();
@@ -302,7 +316,7 @@
 	 
 	<script>
 		EJS_player = "#emulator";
-		EJS_core = "segaMS";
+		EJS_core = "coleco";
 		EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
 		EJS_gameUrl = null;
 	</script>
