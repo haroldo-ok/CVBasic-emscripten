@@ -355,7 +355,7 @@
       window.onerror = function(err) {
 		if (err == 'ResizeObserver loop completed with undelivered notifications.' ||
 			err == 'Script error.') {
-			logger.warn('Exception thrown', err);
+			console.warn('Exception thrown', err);
 			return;
 		}		
 	  
@@ -375,6 +375,7 @@
 	<script>
 		EJS_player = "#emulator";
 		EJS_core = "coleco";
+		EJS_biosUrl = './colecovision.bios.zip';
 		EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
 		EJS_gameUrl = null;
 	</script>	
