@@ -284,10 +284,20 @@
 			emulatorContainerElement.classList[EJS_emulator.config.system ? 'remove' : 'add']('no-emulator-available');
 
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
+			EJS_emulator.handleResize = () => {};
 			await EJS_emulator.downloadBios();
 			EJS_emulator.createText();
 			await EJS_emulator.downloadGameCore();
-			EJS_emulator.handleResize();
+
+				/*
+			window.setTimeout(() => {
+				try {
+					EJS_emulator._originalHandleResize();
+				} catch (e) {
+					console.warn('Problem when calling `handleResize()`', e);
+				}
+			});
+			*/
 		}
 	  };
 
@@ -354,8 +364,13 @@
         }
       };
       Module.setStatus('Downloading...');
-      window.onerror = function() {
-        Module.setStatus('Exception thrown, see JavaScript console');
+      window.onerror = function(err) {
+		if (err == 'ResizeObserver loop completed with undelivered notifications.') {
+			logger.warn('Exception thrown', err);
+			return;
+		}		
+	  
+        Module.setStatus('Exception thrown, ' + err + ', see JavaScript console');
         spinnerElement.style.display = 'none';
         Module.setStatus = function(text) {
           if (text) Module.printErr('[post-exception status] ' + text);
