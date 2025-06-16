@@ -365,7 +365,8 @@
       };
       Module.setStatus('Downloading...');
       window.onerror = function(err) {
-		if (err == 'ResizeObserver loop completed with undelivered notifications.') {
+		if (err == 'ResizeObserver loop completed with undelivered notifications.' ||
+			err == 'Script error.') {
 			logger.warn('Exception thrown', err);
 			return;
 		}		
