@@ -259,7 +259,15 @@
 			saveAs(new Blob([window.generatedROM]), 'game-' + new Date().toISOString() + '.rom');
 		},
 		
+		monkeyPatchEmulator: () => {
+			if (EmulatorJS.prototype._originalHandleResize) return;
+		
+			EmulatorJS.prototype._originalHandleResize = EmulatorJS.prototype.handleResize;
+			EmulatorJS.prototype.handleResize = () => {};
+		},
+		
 		closeEmulator: () => {
+			window.gui.monkeyPatchEmulator();
 			EJS_emulator.callEvent('exit');
 		},
 		
@@ -279,6 +287,7 @@
 			await EJS_emulator.downloadBios();
 			EJS_emulator.createText();
 			await EJS_emulator.downloadGameCore();
+			EJS_emulator.handleResize();
 		}
 	  };
 
@@ -364,8 +373,7 @@
 		EJS_core = "coleco";
 		EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
 		EJS_gameUrl = null;
-	</script>
+	</script>	
 	<script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>	 
-	<script src="https://cdn.emulatorjs.org/stable/data/emulator.js"></script>	 
   </body>
 </html>
