@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.5</title>
+    <title>CVBasic online compiler v0.0.6</title>
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: "Press Start 2P", monospace; font-size: 8px; width: calc(100% - 1em); }
@@ -93,7 +93,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.5</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.6</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -178,6 +178,7 @@
 	  
 	  const EMULATOR_CORE_NAMES = {
 		'': 'coleco',
+		//'msx': 'msx', // EmulatorJS is returning error 404 when loading "msx.json"
 		'sg1000': 'segaMS',
 		'sgm': 'coleco',
 		'sms': 'segaMS',
@@ -259,7 +260,15 @@
 			saveAs(new Blob([window.generatedROM]), 'game-' + new Date().toISOString() + '.rom');
 		},
 		
+		monkeyPatchEmulator: () => {
+			if (EmulatorJS.prototype._originalHandleResize) return;
+		
+			EmulatorJS.prototype._originalHandleResize = EmulatorJS.prototype.handleResize;
+			EmulatorJS.prototype.handleResize = () => {};
+		},
+		
 		closeEmulator: () => {
+			window.gui.monkeyPatchEmulator();
 			EJS_emulator.callEvent('exit');
 		},
 		
@@ -271,14 +280,13 @@
 			
 			EJS_emulator.config.system = EMULATOR_CORE_NAMES[targetHardwareElement.value];
 			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
+			EJS_emulator.config.startOnLoad = true;
 			
 			emulatorContainerElement.classList.remove('unused');
 			emulatorContainerElement.classList[EJS_emulator.config.system ? 'remove' : 'add']('no-emulator-available');
 
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
-			await EJS_emulator.downloadBios();
-			EJS_emulator.createText();
-			await EJS_emulator.downloadGameCore();
+			EJS_emulator.handleResize = () => {};
 		}
 	  };
 
@@ -345,8 +353,14 @@
         }
       };
       Module.setStatus('Downloading...');
-      window.onerror = function() {
-        Module.setStatus('Exception thrown, see JavaScript console');
+      window.onerror = function(err) {
+		if (err == 'ResizeObserver loop completed with undelivered notifications.' ||
+			err == 'Script error.') {
+			console.warn('Exception thrown', err);
+			return;
+		}		
+	  
+        Module.setStatus('Exception thrown, ' + err + ', see JavaScript console');
         spinnerElement.style.display = 'none';
         Module.setStatus = function(text) {
           if (text) Module.printErr('[post-exception status] ' + text);
@@ -362,10 +376,10 @@
 	<script>
 		EJS_player = "#emulator";
 		EJS_core = "coleco";
+		EJS_biosUrl = './colecovision.bios.zip';
 		EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
 		EJS_gameUrl = null;
-	</script>
+	</script>	
 	<script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>	 
-	<script src="https://cdn.emulatorjs.org/stable/data/emulator.js"></script>	 
   </body>
 </html>
