@@ -279,25 +279,13 @@
 			
 			EJS_emulator.config.system = EMULATOR_CORE_NAMES[targetHardwareElement.value];
 			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
+			EJS_emulator.config.startOnLoad = true;
 			
 			emulatorContainerElement.classList.remove('unused');
 			emulatorContainerElement.classList[EJS_emulator.config.system ? 'remove' : 'add']('no-emulator-available');
 
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
 			EJS_emulator.handleResize = () => {};
-			await EJS_emulator.downloadBios();
-			EJS_emulator.createText();
-			await EJS_emulator.downloadGameCore();
-
-				/*
-			window.setTimeout(() => {
-				try {
-					EJS_emulator._originalHandleResize();
-				} catch (e) {
-					console.warn('Problem when calling `handleResize()`', e);
-				}
-			});
-			*/
 		}
 	  };
 
