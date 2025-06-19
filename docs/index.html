@@ -173,12 +173,11 @@
       const generatedAsmElement = document.getElementById('generated-asm');
       const outputElement = document.getElementById('output');
 	  const exampleSourcesElement = document.getElementById('example-sources');
-	  const targetHardwareElement = document.getElementById('target-hardware');
+	  window.targetHardwareElement = document.getElementById('target-hardware');
 	  const emulatorContainerElement = document.getElementsByClassName('emulator-container')[0];
 	  
 	  const EMULATOR_CORE_NAMES = {
 		'': 'coleco',
-		'msx': 'msx',
 		'sg1000': 'segaMS',
 		'sgm': 'coleco',
 		'sms': 'segaMS',
@@ -224,23 +223,22 @@
 	  
 	  window.gui = {
 		handleCompileButtonClick: () => {
-			const SOURCE_NAME = 'game';
-			const SOURCE_BAS = SOURCE_NAME + '.bas';
-			const SOURCE_ASM = SOURCE_NAME + '.asm';
-			
 			gui.closeEmulator();
 			
 			window.generatedAssemblyCode = null;
 			generatedAsmElement.value = '';
 			outputElement.value = '';			
+
+			// Used to communicate with the iframe while taking string length limitatiions into consideration.
+			window.sourceBasicCode = inputBasicElement.value.split('\n');
 			
-			FS.writeFile(SOURCE_BAS, inputBasicElement.value, { encoding: 'utf8' });
-			
-			const hardwareParams = targetHardwareElement.value ? [`--${targetHardwareElement.value}`] : [];
-			const compilerParams = [SOURCE_BAS, SOURCE_ASM];
-			Module.callMain([...hardwareParams, ...compilerParams]);
-			
-			generatedAsmElement.value = FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
+			// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
+			const cvbasicIframe = document.getElementById('cvbasic-iframe');
+			cvbasicIframe.src = cvbasicIframe.src;					
+		},
+		
+		updateAssembly: async (generatedAssembly) => {
+			generatedAsmElement.value = generatedAssembly;
 			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
 			
 			// Used to communicate with the iframe while taking string length limitatiions into consideration.
@@ -285,6 +283,7 @@
 			emulatorContainerElement.classList.remove('unused');
 			emulatorContainerElement.classList[EJS_emulator.config.system ? 'remove' : 'add']('no-emulator-available');
 
+			if (!EJS_emulator.config.system) return;
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
 			EJS_emulator.handleResize = () => {};
 		}
@@ -371,6 +370,7 @@
     <script async type="text/javascript" src="FileSaver.js"></script>
     <script async type="text/javascript" src="cvbasic.js"></script>
 
+	<iframe id="cvbasic-iframe" src="./cvbasic-iframe.html" title="gasm80" style="display: none"></iframe>
 	<iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80" style="display: none"></iframe>
 	 
 	<script>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>cvbasic online compiler</title>
+  </head>
+  <body>
+    <script type='text/javascript'>
+	  const codeToCompile = top.sourceBasicCode;
+	  
+	  const compileCode = (basicCode) => {
+		if (!basicCode) {
+			console.warn('Nothing to compile');
+			return;
+		}
+		
+		const SOURCE_NAME = 'game';
+		const SOURCE_BAS = SOURCE_NAME + '.bas';
+		const SOURCE_ASM = SOURCE_NAME + '.asm';
+		
+		FS.writeFile(SOURCE_BAS, codeToCompile, { encoding: 'utf8' });
+		
+		const hardwareParams = top.targetHardwareElement.value ? [`--${top.targetHardwareElement.value}`] : [];
+		const compilerParams = [SOURCE_BAS, SOURCE_ASM];
+		Module.callMain([...hardwareParams, ...compilerParams]);
+		
+		generatedAssembly = FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
+
+		window.setTimeout(() => top.gui.updateAssembly(generatedAssembly), 0);
+	  };
+	
+	  const onFileSystemReady = () => {
+		if (window.FS) {
+			codeToCompile && compileCode(codeToCompile.join('\n'));
+		} else {
+			if (onFileSystemReady.retries > 8) {
+				throw new Error('FS failed to load.');
+			}
+			onFileSystemReady.retries++;
+			window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
+		}
+
+	  };
+	  window.setTimeout(onFileSystemReady, 50);
+
+      var Module = {
+        preRun: [],		
+        postRun: [],
+		
+        print: function(text) {
+			top.Module.print('cvbasic: ' + text);
+		},
+		
+        printErr: function(text) {
+		  top.Module.printErr('cvbasic: ' + text);
+        },
+		
+        setStatus: function(text) {
+		  top.Module.setStatus(text);
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          console.log(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      Module.setStatus('Downloading...');
+      window.onerror = function() {
+		top.onerror();
+      };
+    </script>
+	
+    <script async type="text/javascript" src="cvbasic.js"></script>
+  </body>
+</html>
