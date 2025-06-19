@@ -238,7 +238,9 @@
 		},
 		
 		updateAssembly: async (generatedAssembly) => {
-			generatedAsmElement.value = generatedAssembly;
+			if (!generatedAssembly) return;
+		
+			generatedAsmElement.value = generatedAssembly.join('\n');
 			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
 			
 			// Used to communicate with the iframe while taking string length limitatiions into consideration.

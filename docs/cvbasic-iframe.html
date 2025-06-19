@@ -19,13 +19,13 @@
 		const SOURCE_BAS = SOURCE_NAME + '.bas';
 		const SOURCE_ASM = SOURCE_NAME + '.asm';
 		
-		FS.writeFile(SOURCE_BAS, codeToCompile, { encoding: 'utf8' });
+		FS.writeFile(SOURCE_BAS, basicCode, { encoding: 'utf8' });
 		
 		const hardwareParams = top.targetHardwareElement.value ? [`--${top.targetHardwareElement.value}`] : [];
 		const compilerParams = [SOURCE_BAS, SOURCE_ASM];
 		Module.callMain([...hardwareParams, ...compilerParams]);
 		
-		generatedAssembly = FS.readFile(SOURCE_ASM, { encoding: 'utf8' });
+		generatedAssembly = FS.readFile(SOURCE_ASM, { encoding: 'utf8' }).split('\n');
 
 		window.setTimeout(() => top.gui.updateAssembly(generatedAssembly), 0);
 	  };
