@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.7</title>
+    <title>CVBasic online compiler v0.0.8</title>
+	<link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: "Press Start 2P", monospace; font-size: 8px; width: calc(100% - 1em); }
@@ -73,7 +74,7 @@
 		display: none;
 	  }
 	  
-	  .emulator-container.unused #emulator {
+	  .emulator-container.loading #emulator {
 		visibility: hidden;
 	  }
 	  
@@ -93,7 +94,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.7</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.8</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -118,7 +119,7 @@
 			
 			<label for="target-hardware">Target:</label>
 			<div class="nes-select">
-			  <select required id="target-hardware">
+			  <select required id="target-hardware" onchange="window.gui.handleTargetHardwareClick()">
 				<option value="">Standard Colecovision (1K RAM)</option>
 				<option value="sg1000">Sega SG-1000/SC-3000 (1K RAM)</option>
 				<option value="msx">MSX</option>
@@ -146,11 +147,11 @@
 				<label>Generated ROM</label>
 			</h3>
 			
-			<button class="nes-btn is-secondary" onclick="window.gui.handleDownloadButtonClick()">
+			<button class="nes-btn is-secondary" id="download-generated-rom" onclick="window.gui.handleDownloadButtonClick()">
 				⤓ Download Generated ROM
 			</button>
 
-			<div class="emulator-container unused">
+			<div class="emulator-container loading">
 				<label class="no-emulator-available">No emulator available, yet.</label>
 				<div id="emulator"></div>
 			</div>
@@ -174,6 +175,7 @@
       const outputElement = document.getElementById('output');
 	  const exampleSourcesElement = document.getElementById('example-sources');
 	  window.targetHardwareElement = document.getElementById('target-hardware');
+	  const downloadGeneratedRomButton = document.getElementById('download-generated-rom');
 	  const emulatorContainerElement = document.getElementsByClassName('emulator-container')[0];
 	  
 	  const EMULATOR_CORE_NAMES = {
@@ -222,12 +224,24 @@
 	  };
 	  
 	  window.gui = {
+		handleTargetHardwareClick: () => {
+			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];			
+			emulatorContainerElement.classList.add('loading');
+			emulatorContainerElement.classList[emulatorCoreName ? 'remove' : 'add']('no-emulator-available');
+			
+			window.generatedROM = null;
+			gui.checkDownloadButtonEnabled();
+		},
+	  
 		handleCompileButtonClick: () => {
 			gui.closeEmulator();
 			
 			window.generatedAssemblyCode = null;
 			generatedAsmElement.value = '';
 			outputElement.value = '';			
+
+			window.generatedROM = null;
+			gui.checkDownloadButtonEnabled();
 
 			// Used to communicate with the iframe while taking string length limitatiions into consideration.
 			window.sourceBasicCode = inputBasicElement.value.split('\n');
@@ -249,6 +263,10 @@
 			// TODO: Fix this ugly hack, but taking into consideration that "gasm80" doesn't clean variables between runs.
 			const gasm80Iframe = document.getElementById('gasm80-iframe');
 			gasm80Iframe.src = gasm80Iframe.src;
+		},
+		
+		checkDownloadButtonEnabled: () => {
+			downloadGeneratedRomButton.classList[window.generatedROM ? 'remove' : 'add']('is-disabled');
 		},
 		
 		handleDownloadButtonClick: () => {
@@ -274,6 +292,7 @@
 		
 		updateEmulator: async (generatedROM) => {
 			window.generatedROM = generatedROM;
+			gui.checkDownloadButtonEnabled();
 		
 			const base64String = btoa(String.fromCharCode(...generatedROM));
 			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
@@ -282,14 +301,15 @@
 			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
 			EJS_emulator.config.startOnLoad = true;
 			
-			emulatorContainerElement.classList.remove('unused');
-			emulatorContainerElement.classList[EJS_emulator.config.system ? 'remove' : 'add']('no-emulator-available');
+			emulatorContainerElement.classList.remove('loading');
 
 			if (!EJS_emulator.config.system) return;
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
 			EJS_emulator.handleResize = () => {};
 		}
 	  };
+	  
+	  window.setTimeout(() => gui.handleTargetHardwareClick(), 0);
 
       var Module = {
         preRun: [],		
@@ -366,7 +386,7 @@
         Module.setStatus = function(text) {
           if (text) Module.printErr('[post-exception status] ' + text);
         };
-      };
+      };	  
     </script>
 	
     <script async type="text/javascript" src="FileSaver.js"></script>
