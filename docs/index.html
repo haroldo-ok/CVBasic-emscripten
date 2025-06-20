@@ -73,7 +73,7 @@
 		display: none;
 	  }
 	  
-	  .emulator-container.unused #emulator {
+	  .emulator-container.loading #emulator {
 		visibility: hidden;
 	  }
 	  
@@ -150,7 +150,7 @@
 				⤓ Download Generated ROM
 			</button>
 
-			<div class="emulator-container unused">
+			<div class="emulator-container loading">
 				<label class="no-emulator-available">No emulator available, yet.</label>
 				<div id="emulator"></div>
 			</div>
@@ -224,6 +224,7 @@
 	  window.gui = {
 		handleTargetHardwareClick: () => {
 			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];			
+			emulatorContainerElement.classList.add('loading');
 			emulatorContainerElement.classList[emulatorCoreName ? 'remove' : 'add']('no-emulator-available');			
 		},
 	  
@@ -287,7 +288,7 @@
 			EJS_emulator.config.gameUrl = URL.createObjectURL(new Blob([generatedROM]));
 			EJS_emulator.config.startOnLoad = true;
 			
-			emulatorContainerElement.classList.remove('unused');
+			emulatorContainerElement.classList.remove('loading');
 
 			if (!EJS_emulator.config.system) return;
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
