@@ -118,7 +118,7 @@
 			
 			<label for="target-hardware">Target:</label>
 			<div class="nes-select">
-			  <select required id="target-hardware">
+			  <select required id="target-hardware" onclick="window.gui.handleTargetHardwareClick()">
 				<option value="">Standard Colecovision (1K RAM)</option>
 				<option value="sg1000">Sega SG-1000/SC-3000 (1K RAM)</option>
 				<option value="msx">MSX</option>
@@ -222,6 +222,11 @@
 	  };
 	  
 	  window.gui = {
+		handleTargetHardwareClick: () => {
+			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];			
+			emulatorContainerElement.classList[emulatorCoreName ? 'remove' : 'add']('no-emulator-available');			
+		},
+	  
 		handleCompileButtonClick: () => {
 			gui.closeEmulator();
 			
@@ -283,13 +288,14 @@
 			EJS_emulator.config.startOnLoad = true;
 			
 			emulatorContainerElement.classList.remove('unused');
-			emulatorContainerElement.classList[EJS_emulator.config.system ? 'remove' : 'add']('no-emulator-available');
 
 			if (!EJS_emulator.config.system) return;
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
 			EJS_emulator.handleResize = () => {};
 		}
 	  };
+	  
+	  window.setTimeout(() => gui.handleTargetHardwareClick(), 0);
 
       var Module = {
         preRun: [],		
@@ -366,7 +372,7 @@
         Module.setStatus = function(text) {
           if (text) Module.printErr('[post-exception status] ' + text);
         };
-      };
+      };	  
     </script>
 	
     <script async type="text/javascript" src="FileSaver.js"></script>
