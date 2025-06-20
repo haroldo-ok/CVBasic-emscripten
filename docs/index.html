@@ -118,7 +118,7 @@
 			
 			<label for="target-hardware">Target:</label>
 			<div class="nes-select">
-			  <select required id="target-hardware" onclick="window.gui.handleTargetHardwareClick()">
+			  <select required id="target-hardware" onchange="window.gui.handleTargetHardwareClick()">
 				<option value="">Standard Colecovision (1K RAM)</option>
 				<option value="sg1000">Sega SG-1000/SC-3000 (1K RAM)</option>
 				<option value="msx">MSX</option>
@@ -146,7 +146,7 @@
 				<label>Generated ROM</label>
 			</h3>
 			
-			<button class="nes-btn is-secondary" onclick="window.gui.handleDownloadButtonClick()">
+			<button class="nes-btn is-secondary" id="download-generated-rom" onclick="window.gui.handleDownloadButtonClick()">
 				⤓ Download Generated ROM
 			</button>
 
@@ -174,6 +174,7 @@
       const outputElement = document.getElementById('output');
 	  const exampleSourcesElement = document.getElementById('example-sources');
 	  window.targetHardwareElement = document.getElementById('target-hardware');
+	  const downloadGeneratedRomButton = document.getElementById('download-generated-rom');
 	  const emulatorContainerElement = document.getElementsByClassName('emulator-container')[0];
 	  
 	  const EMULATOR_CORE_NAMES = {
@@ -225,7 +226,10 @@
 		handleTargetHardwareClick: () => {
 			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];			
 			emulatorContainerElement.classList.add('loading');
-			emulatorContainerElement.classList[emulatorCoreName ? 'remove' : 'add']('no-emulator-available');			
+			emulatorContainerElement.classList[emulatorCoreName ? 'remove' : 'add']('no-emulator-available');
+			
+			window.generatedROM = null;
+			gui.checkDownloadButtonEnabled();
 		},
 	  
 		handleCompileButtonClick: () => {
@@ -234,6 +238,9 @@
 			window.generatedAssemblyCode = null;
 			generatedAsmElement.value = '';
 			outputElement.value = '';			
+
+			window.generatedROM = null;
+			gui.checkDownloadButtonEnabled();
 
 			// Used to communicate with the iframe while taking string length limitatiions into consideration.
 			window.sourceBasicCode = inputBasicElement.value.split('\n');
@@ -255,6 +262,10 @@
 			// TODO: Fix this ugly hack, but taking into consideration that "gasm80" doesn't clean variables between runs.
 			const gasm80Iframe = document.getElementById('gasm80-iframe');
 			gasm80Iframe.src = gasm80Iframe.src;
+		},
+		
+		checkDownloadButtonEnabled: () => {
+			downloadGeneratedRomButton.classList[window.generatedROM ? 'remove' : 'add']('is-disabled');
 		},
 		
 		handleDownloadButtonClick: () => {
@@ -280,6 +291,7 @@
 		
 		updateEmulator: async (generatedROM) => {
 			window.generatedROM = generatedROM;
+			gui.checkDownloadButtonEnabled();
 		
 			const base64String = btoa(String.fromCharCode(...generatedROM));
 			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
