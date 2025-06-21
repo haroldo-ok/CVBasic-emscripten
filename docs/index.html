@@ -185,6 +185,11 @@
 		'sms': 'segaMS',
 	  };
 	  
+	  const ROM_EXTENSIONS = {
+		'sg1000': 'sg',
+		'sms': 'sms',
+	  };
+	  
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
@@ -275,7 +280,8 @@
 				return;
 			}
 			
-			saveAs(new Blob([window.generatedROM]), 'game-' + new Date().toISOString() + '.rom');
+			const fileExtension = ROM_EXTENSIONS[targetHardwareElement.value] || 'rom';
+			saveAs(new Blob([window.generatedROM]), 'game-' + new Date().toISOString() + '.' + fileExtension);
 		},
 		
 		monkeyPatchEmulator: () => {
