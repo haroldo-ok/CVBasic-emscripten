@@ -312,10 +312,25 @@
 			if (!EJS_emulator.config.system) return;
 			EJS_emulator = new EmulatorJS(EJS_player, EJS_emulator.config);
 			EJS_emulator.handleResize = () => {};
-		}
+		},
+		
+		captureEmulatorEvents: () => {
+			const KEYS_TO_IGNORE = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+			const preventDefaultIfArrowPressed = event => {
+				if (!KEYS_TO_IGNORE.includes(event.key)) return;
+				event.preventDefault();
+			};
+			emulatorContainerElement.addEventListener('keydown', preventDefaultIfArrowPressed);
+			emulatorContainerElement.addEventListener('keyup', preventDefaultIfArrowPressed);
+		},
+		
+		captureEvents: () => {
+			gui.captureEmulatorEvents();
+		},
 	  };
 	  
 	  window.setTimeout(() => gui.handleTargetHardwareClick(), 0);
+	  window.setTimeout(() => gui.captureEvents(), 0);
 
       var Module = {
         preRun: [],		
