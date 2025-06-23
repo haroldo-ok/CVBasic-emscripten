@@ -150,7 +150,7 @@
 			<button class="nes-btn is-secondary" id="download-generated-rom" onclick="window.gui.handleDownloadButtonClick()">
 				🔽 Download Generated ROM
 			</button>
-			<button class="nes-btn is-secondary" id="download-embedded-html" onclick="window.gui.handleEmbedHtmlButtonClick()">
+			<button class="nes-btn is-secondary" id="embed-rom-as-html" onclick="window.gui.handleEmbedHtmlButtonClick()">
 				📄 Embed ROM as HTML
 			</button>
 
@@ -178,7 +178,8 @@
       const outputElement = document.getElementById('output');
 	  const exampleSourcesElement = document.getElementById('example-sources');
 	  window.targetHardwareElement = document.getElementById('target-hardware');
-	  const downloadGeneratedRomButton = document.getElementById('download-generated-rom');
+	  const downloadGeneratedRomButton = document.getElementById('download-generated-rom');	  
+	  const downloadEmbedRomAsHtmlButton = document.getElementById('embed-rom-as-html');
 	  const emulatorContainerElement = document.getElementsByClassName('emulator-container')[0];
 	  
 	  const EMULATOR_CORE_NAMES = {
@@ -277,6 +278,10 @@
 		
 		checkDownloadButtonEnabled: () => {
 			downloadGeneratedRomButton.classList[window.generatedROM ? 'remove' : 'add']('is-disabled');
+			
+			const isRomGeneratedAndEmulatorAvailable = window.generatedROM && 
+				targetHardwareElement.value && EMULATOR_CORE_NAMES[targetHardwareElement.value];
+			downloadEmbedRomAsHtmlButton.classList[isRomGeneratedAndEmulatorAvailable ? 'remove' : 'add']('is-disabled');
 		},
 		
 		handleDownloadButtonClick: () => {
