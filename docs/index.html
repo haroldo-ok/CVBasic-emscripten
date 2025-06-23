@@ -294,8 +294,9 @@
 		},
 		
 		closeEmulator: () => {
-			window.gui.monkeyPatchEmulator();
 			if (!window.EJS_emulator) return;
+
+			window.gui.monkeyPatchEmulator();
 			try {
 				EJS_emulator.callEvent('exit');
 			} catch (e) {
