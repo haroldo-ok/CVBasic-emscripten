@@ -296,7 +296,6 @@
 			}
 			
 			const base64String = btoa(String.fromCharCode(...generatedROM));
-			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
 
 			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];
 			
@@ -315,10 +314,14 @@
 					<div id="emulator"></div>
 				</div>
 				<${scriptTag}>
+					const base64String = "${base64String}";
+					const dataArray = Uint8Array.from(atob(base64String), (c) => c.charCodeAt(0));
+					const blobUrl = URL.createObjectURL(new Blob([dataArray]));
+					
 					EJS_player = "#emulator";
 					EJS_core = "${emulatorCoreName}";
 					EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-					EJS_gameUrl = "${dataUrl}";
+					EJS_gameUrl = blobUrl;
 				</${scriptTag}>	
 				<${scriptTag} src="https://cdn.emulatorjs.org/stable/data/loader.js"></${scriptTag}>	 
 			  </body>
