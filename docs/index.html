@@ -301,8 +301,13 @@
 			
 			const scriptTag = 'script';
 			
-			const generatedHtml = 
-			`
+			const dedent = rawString => {
+				const lines = rawString.split('\n');
+				const minIndent = Math.min(...lines.filter(line => line.trim() !== '').map(line => line.match(/^\s*/)[0].length));
+				return lines.map(line => line.substring(minIndent)).join('\n').trim();
+			};
+	
+			const generatedHtml = dedent(`
 			<html lang="en-us">
 			  <head>
 				<meta charset="utf-8">
@@ -326,7 +331,7 @@
 				<${scriptTag} src="https://cdn.emulatorjs.org/stable/data/loader.js"></${scriptTag}>	 
 			  </body>
 			</html>
-			`;
+			`);
 			
 			saveAs(new Blob([generatedHtml]), 'game-' + new Date().toISOString() + '.html');
 		},
