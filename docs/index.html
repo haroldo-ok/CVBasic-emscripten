@@ -236,6 +236,8 @@
 			
 			window.generatedROM = null;
 			gui.checkDownloadButtonEnabled();
+			
+			gui.closeEmulator();
 		},
 	  
 		handleCompileButtonClick: () => {
@@ -293,7 +295,12 @@
 		
 		closeEmulator: () => {
 			window.gui.monkeyPatchEmulator();
-			EJS_emulator.callEvent('exit');
+			if (!window.EJS_emulator) return;
+			try {
+				EJS_emulator.callEvent('exit');
+			} catch (e) {
+				console.warn('Error while closing emulator', e);
+			}
 		},
 		
 		updateEmulator: async (generatedROM) => {
