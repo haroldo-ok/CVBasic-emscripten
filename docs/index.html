@@ -150,7 +150,7 @@
 			<button class="nes-btn is-secondary" id="download-generated-rom" onclick="window.gui.handleDownloadButtonClick()">
 				🔽 Download Generated ROM
 			</button>
-			<button class="nes-btn is-secondary" id="download-generated-rom" onclick="window.gui.handleDownloadButtonClick()">
+			<button class="nes-btn is-secondary" id="download-embedded-html" onclick="window.gui.handleEmbedHtmlButtonClick()">
 				📄 Embed ROM as HTML
 			</button>
 
@@ -287,6 +287,43 @@
 			
 			const fileExtension = ROM_EXTENSIONS[targetHardwareElement.value] || 'rom';
 			saveAs(new Blob([window.generatedROM]), 'game-' + new Date().toISOString() + '.' + fileExtension);
+		},
+		
+		handleEmbedHtmlButtonClick: () => {
+			if (!window.generatedROM) {
+				alert('Sorry, but youm must compile something, first.');
+				return;
+			}
+			
+			const base64String = btoa(String.fromCharCode(...generatedROM));
+			const dataUrl = `data:application/octet-stream;base64,${base64String}`;
+
+			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];
+			
+			const scriptTag = 'script';
+			
+			const generatedHtml = 
+			`
+			<html lang="en-us">
+			  <head>
+				<meta charset="utf-8">
+				<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+				<title>CVBasic compiled game</title>
+			  </head>
+			  <body>
+				<div id="emulator"></div>
+				<${scriptTag}>
+					EJS_player = "#emulator";
+					EJS_core = "${emulatorCoreName}";
+					EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+					EJS_gameUrl = "${dataUrl}";
+				</${scriptTag}>	
+				<${scriptTag} src="https://cdn.emulatorjs.org/stable/data/loader.js"></${scriptTag}>	 
+			  </body>
+			</html>
+			`;
+			
+			saveAs(new Blob([generatedHtml]), 'game-' + new Date().toISOString() + '.html');
 		},
 		
 		monkeyPatchEmulator: () => {
