@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.12</title>
+    <title>CVBasic online compiler v0.0.13</title>
 	<link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
@@ -94,7 +94,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.12</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.13</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -232,6 +232,20 @@
 		element.setSelectionRange(startIndex, endIndex);
 	  };
 	  
+	  const blobToBase64 = blob => {
+		  return new Promise((onSuccess, onError) => {
+			try {
+			  const reader = new FileReader();
+			  reader.onload = function () {
+				onSuccess(this.result);
+			  };
+			  reader.readAsDataURL(blob);
+			} catch (e) {
+			  onError(e);
+			}
+		  });
+	  };
+	  
 	  window.gui = {
 		handleTargetHardwareClick: () => {
 			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];			
@@ -279,8 +293,7 @@
 		checkDownloadButtonEnabled: () => {
 			downloadGeneratedRomButton.classList[window.generatedROM ? 'remove' : 'add']('is-disabled');
 			
-			const isRomGeneratedAndEmulatorAvailable = window.generatedROM && 
-				targetHardwareElement.value && EMULATOR_CORE_NAMES[targetHardwareElement.value];
+			const isRomGeneratedAndEmulatorAvailable = window.generatedROM && EMULATOR_CORE_NAMES[targetHardwareElement.value];
 			downloadEmbedRomAsHtmlButton.classList[isRomGeneratedAndEmulatorAvailable ? 'remove' : 'add']('is-disabled');
 		},
 		
@@ -300,45 +313,58 @@
 				return;
 			}
 			
-			const base64String = btoa(String.fromCharCode(...generatedROM));
-
-			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];
-			
-			const scriptTag = 'script';
-			
-			const dedent = rawString => {
-				const lines = rawString.split('\n');
-				const minIndent = Math.min(...lines.filter(line => line.trim() !== '').map(line => line.match(/^\s*/)[0].length));
-				return lines.map(line => line.substring(minIndent)).join('\n').trim();
+			const fetchBios = biosUrl => {
+				return fetch(biosUrl)
+				.then(res => res.blob())
+				.then(blob => blobToBase64(blob));
 			};
-	
-			const generatedHtml = dedent(`
-			<html lang="en-us">
-			  <head>
-				<meta charset="utf-8">
-				<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-				<title>CVBasic compiled game</title>
-			  </head>
-			  <body>
-				<div style='width:640px;height:480px;max-width:100%'>
-					<div id="emulator"></div>
-				</div>
-				<${scriptTag}>
-					const base64String = "${base64String}";
-					const dataArray = Uint8Array.from(atob(base64String), (c) => c.charCodeAt(0));
-					const blobUrl = URL.createObjectURL(new Blob([dataArray]));
-					
-					EJS_player = "#emulator";
-					EJS_core = "${emulatorCoreName}";
-					EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-					EJS_gameUrl = blobUrl;
-				</${scriptTag}>	
-				<${scriptTag} src="https://cdn.emulatorjs.org/stable/data/loader.js"></${scriptTag}>	 
-			  </body>
-			</html>
-			`);
 			
-			saveAs(new Blob([generatedHtml]), 'game-' + new Date().toISOString() + '.html');
+			const isColecoVision = !targetHardwareElement.value;
+			const biosUrlPromise = isColecoVision ? 
+				fetchBios('./colecovision.bios.zip') : Promise.resolve('');
+			
+			biosUrlPromise.then(biosUrl => {
+				const base64String = btoa(String.fromCharCode(...generatedROM));
+
+				const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];
+				
+				const scriptTag = 'script';
+				
+				const dedent = rawString => {
+					const lines = rawString.split('\n');
+					const minIndent = Math.min(...lines.filter(line => line.trim() !== '').map(line => line.match(/^\s*/)[0].length));
+					return lines.map(line => line.substring(minIndent)).join('\n').trim();
+				};
+		
+				const generatedHtml = dedent(`
+				<html lang="en-us">
+				  <head>
+					<meta charset="utf-8">
+					<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+					<title>CVBasic compiled game</title>
+				  </head>
+				  <body>
+					<div style='width:640px;height:480px;max-width:100%'>
+						<div id="emulator"></div>
+					</div>
+					<${scriptTag}>
+						const base64String = "${base64String}";
+						const dataArray = Uint8Array.from(atob(base64String), (c) => c.charCodeAt(0));
+						const blobUrl = URL.createObjectURL(new Blob([dataArray]));
+						
+						EJS_player = "#emulator";
+						EJS_core = "${emulatorCoreName}";
+						EJS_biosUrl = "${biosUrl}";
+						EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+						EJS_gameUrl = blobUrl;
+					</${scriptTag}>	
+					<${scriptTag} src="https://cdn.emulatorjs.org/stable/data/loader.js"></${scriptTag}>	 
+				  </body>
+				</html>
+				`);
+				
+				saveAs(new Blob([generatedHtml]), 'game-' + new Date().toISOString() + '.html');
+			});
 		},
 		
 		monkeyPatchEmulator: () => {
