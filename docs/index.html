@@ -232,6 +232,20 @@
 		element.setSelectionRange(startIndex, endIndex);
 	  };
 	  
+	  const blobToBase64 = blob => {
+		  return new Promise((onSuccess, onError) => {
+			try {
+			  const reader = new FileReader();
+			  reader.onload = function () {
+				onSuccess(this.result);
+			  };
+			  reader.readAsDataURL(blob);
+			} catch (e) {
+			  onError(e);
+			}
+		  });
+	  };
+	  
 	  window.gui = {
 		handleTargetHardwareClick: () => {
 			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];			
@@ -299,6 +313,12 @@
 				alert('Sorry, but youm must compile something, first.');
 				return;
 			}
+			
+			// FIXME: Just testing the fetching of the BIOS.
+			fetch('./colecovision.bios.zip')
+			.then(res => res.blob())
+			.then(blob => blobToBase64(blob))
+			.then(uri => console.info('BIOS URI', uri));
 			
 			const base64String = btoa(String.fromCharCode(...generatedROM));
 
