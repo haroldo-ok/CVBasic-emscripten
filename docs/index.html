@@ -199,21 +199,12 @@
 	  
 	  window.generatedAssemblyCode = null;
 	  
-	  const onFileSystemReady = () => {
-		if (!window.FS) {
-			if (onFileSystemReady.retries > 8) {
-				throw new Error('FS failed to load.');
-			}
-			onFileSystemReady.retries++;
-			window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
-			return;
-		}
-		
+	  const loadExamples = context => {
 		const loadExample = fileName => {
-			inputBasicElement.value = FS.readFile('examples/' + fileName, { encoding: 'utf8' });		
+			inputBasicElement.value = context.FS.readFile('examples/' + fileName, { encoding: 'utf8' });		
 		};
 
-		const exampleFileNames = FS.readdir('examples').filter(name => name.endsWith('.bas'));
+		const exampleFileNames = context.FS.readdir('examples').filter(name => name.endsWith('.bas'));
 		exampleFileNames.forEach(fileName => exampleSourcesElement.add(new Option(fileName)));
 
 		loadExample('face_joystick.bas');
@@ -221,7 +212,6 @@
 			if (exampleSourcesElement.value) loadExample(exampleSourcesElement.value);
 		});
 	  };
-	  window.setTimeout(onFileSystemReady, 50);
 	  	  
 	  const selectTextOnInput = (element, textToFind) => {
 		const text = element.value;
@@ -298,6 +288,7 @@
 			window.setTimeout(onFileSystemReady, 50);			
 		}
 	  };
+	  window.setTimeout(() => compiler.cvbasic.call().then(loadExamples), 0);
 	  
 	  window.gui = {
 		handleTargetHardwareClick: () => {
@@ -554,7 +545,6 @@
     </script>
 	
     <script async type="text/javascript" src="FileSaver.js"></script>
-    <script async type="text/javascript" src="cvbasic.js"></script>
 
 	<iframe id="cvbasic-iframe" src="./cvbasic-iframe.html" title="gasm80" style="display: none"></iframe>
 	<iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80" style="display: none"></iframe>
