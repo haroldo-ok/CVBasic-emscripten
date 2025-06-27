@@ -246,6 +246,59 @@
 		  });
 	  };
 	  
+	  const compileCode = (basicCode, context) => {
+		if (!basicCode) {
+			console.warn('Nothing to compile');
+			return;
+		}
+		
+		const SOURCE_NAME = 'game';
+		const SOURCE_BAS = SOURCE_NAME + '.bas';
+		const SOURCE_ASM = SOURCE_NAME + '.asm';
+		
+		context.FS.writeFile(SOURCE_BAS, basicCode, { encoding: 'utf8' });
+		
+		const hardwareParams = top.targetHardwareElement.value ? [`--${top.targetHardwareElement.value}`] : [];
+		const compilerParams = [SOURCE_BAS, SOURCE_ASM];
+		context.Module.callMain([...hardwareParams, ...compilerParams]);
+		
+		const generatedAssembly = context.FS.readFile(SOURCE_ASM, { encoding: 'utf8' }).split('\n');
+
+		window.setTimeout(() => gui.updateAssembly(generatedAssembly), 0);
+	  };
+
+	  window.compiler = {
+		cvbasic: {
+			pendingCallback: null,
+			call: () => new Promise((resolve, reject) => {
+				compiler.cvbasic.pendingCallback = resolve;
+			
+				// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
+				const moduleName = 'cvbasic';
+				const iframeElement = document.getElementById(`${moduleName}-iframe`);
+				iframeElement.src = iframeElement.src;								
+			}),
+		},
+	  
+		handleIframeCallback: (moduleName, iframeWindow) => {
+			const onFileSystemReady = () => {
+				if (iframeWindow.FS) {
+					if (!compiler.cvbasic.pendingCallback) {
+						throw new Error(`No callback for ${moduleName}.`);
+					}
+					compiler[moduleName].pendingCallback(iframeWindow);
+				} else {
+					if (onFileSystemReady.retries > 8) {
+						throw new Error(`FS failed to load for ${moduleName}.`);
+					}
+					onFileSystemReady.retries++;
+					window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
+				}
+			};
+			window.setTimeout(onFileSystemReady, 50);			
+		}
+	  };
+	  
 	  window.gui = {
 		handleTargetHardwareClick: () => {
 			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];			
@@ -270,10 +323,11 @@
 
 			// Used to communicate with the iframe while taking string length limitatiions into consideration.
 			window.sourceBasicCode = inputBasicElement.value.split('\n');
-			
-			// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
-			const cvbasicIframe = document.getElementById('cvbasic-iframe');
-			cvbasicIframe.src = cvbasicIframe.src;					
+
+			compiler.cvbasic.call()
+			.then(context => {
+				compileCode(inputBasicElement.value, context);
+			});
 		},
 		
 		updateAssembly: async (generatedAssembly) => {

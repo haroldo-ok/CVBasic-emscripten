@@ -7,42 +7,7 @@
   </head>
   <body>
     <script type='text/javascript'>
-	  const codeToCompile = top.sourceBasicCode;
-	  
-	  const compileCode = (basicCode) => {
-		if (!basicCode) {
-			console.warn('Nothing to compile');
-			return;
-		}
-		
-		const SOURCE_NAME = 'game';
-		const SOURCE_BAS = SOURCE_NAME + '.bas';
-		const SOURCE_ASM = SOURCE_NAME + '.asm';
-		
-		FS.writeFile(SOURCE_BAS, basicCode, { encoding: 'utf8' });
-		
-		const hardwareParams = top.targetHardwareElement.value ? [`--${top.targetHardwareElement.value}`] : [];
-		const compilerParams = [SOURCE_BAS, SOURCE_ASM];
-		Module.callMain([...hardwareParams, ...compilerParams]);
-		
-		generatedAssembly = FS.readFile(SOURCE_ASM, { encoding: 'utf8' }).split('\n');
-
-		window.setTimeout(() => top.gui.updateAssembly(generatedAssembly), 0);
-	  };
-	
-	  const onFileSystemReady = () => {
-		if (window.FS) {
-			codeToCompile && compileCode(codeToCompile.join('\n'));
-		} else {
-			if (onFileSystemReady.retries > 8) {
-				throw new Error('FS failed to load.');
-			}
-			onFileSystemReady.retries++;
-			window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
-		}
-
-	  };
-	  window.setTimeout(onFileSystemReady, 50);
+	  top.compiler.handleIframeCallback('cvbasic', window);
 
       var Module = {
         preRun: [],		
