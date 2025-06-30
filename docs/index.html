@@ -256,6 +256,32 @@
 
 		window.setTimeout(() => gui.updateAssembly(generatedAssembly), 0);
 	  };
+	  
+	  const assembleCode = (asmCode, context) => {
+		if (!asmCode) {
+			console.warn('Nothing to assemble');
+			return;
+		}
+		
+		const SOURCE_NAME = 'game';
+		const SOURCE_ASM = SOURCE_NAME + '.asm';
+		const SOURCE_ROM = SOURCE_NAME + '.rom';
+		const SOURCE_LST = SOURCE_NAME + '.lst';
+		const SOURCE_SYM = SOURCE_NAME + '.sym';
+		
+		Module.print('Assembling...');
+		context.FS.writeFile(SOURCE_ASM, asmCode, { encoding: 'utf8' });		
+		
+		const platformParams = document.getElementById('target-hardware').value == 'sms' ? ['-sms'] : [];
+		const compilerParams = [SOURCE_ASM, '-o', SOURCE_ROM, '-l', SOURCE_LST, '-s', SOURCE_SYM, ...platformParams];
+		context.Module.callMain(compilerParams);
+
+		context.Module.print('Assembled.');
+		
+		const generatedROM = context.FS.readFile(SOURCE_ROM);
+		
+		window.setTimeout(() => top.gui.updateEmulator(generatedROM), 0);
+	  };
 
 	  window.compiler = {
 		cvbasic: {
@@ -265,6 +291,18 @@
 			
 				// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
 				const moduleName = 'cvbasic';
+				const iframeElement = document.getElementById(`${moduleName}-iframe`);
+				iframeElement.src = iframeElement.src;								
+			}),
+		},
+	  
+		gasm80: {
+			pendingCallback: null,
+			call: () => new Promise((resolve, reject) => {
+				compiler.gasm80.pendingCallback = resolve;
+			
+				// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
+				const moduleName = 'gasm80';
 				const iframeElement = document.getElementById(`${moduleName}-iframe`);
 				iframeElement.src = iframeElement.src;								
 			}),
