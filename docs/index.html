@@ -298,13 +298,18 @@
 	  
 		gasm80: {
 			pendingCallback: null,
+			getIframeElement: () => {
+				const moduleName = 'gasm80';
+				const iframeElement = document.getElementById(`${moduleName}-iframe`);
+				return iframeElement;
+			},
 			call: () => new Promise((resolve, reject) => {
+				debugger;
 				compiler.gasm80.pendingCallback = resolve;
 			
 				// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
-				const moduleName = 'gasm80';
-				const iframeElement = document.getElementById(`${moduleName}-iframe`);
-				iframeElement.src = iframeElement.src;								
+				const getIframeElement = compiler.gasm80.getIframeElement();
+				iframeElement.src = iframeElement.src;
 			}),
 		},
 	  
@@ -360,17 +365,17 @@
 		},
 		
 		updateAssembly: async (generatedAssembly) => {
+			debugger;
 			if (!generatedAssembly) return;
 		
 			generatedAsmElement.value = generatedAssembly.join('\n');
-			selectTextOnInput(generatedAsmElement, 'CVBasic program start');
+			selectTextOnInput(generatedAsmElement, 'CVBasic program start');			
 			
-			// Used to communicate with the iframe while taking string length limitatiions into consideration.
-			window.generatedAssemblyCode = generatedAsmElement.value.split('\n');
-
-			// TODO: Fix this ugly hack, but taking into consideration that "gasm80" doesn't clean variables between runs.
-			const gasm80Iframe = document.getElementById('gasm80-iframe');
-			gasm80Iframe.src = gasm80Iframe.src;
+			compiler.gasm80.call()
+			.then(context => {
+				debugger;
+				assembleCode(generatedAsmElement.value, context);
+			});
 		},
 		
 		checkDownloadButtonEnabled: () => {
