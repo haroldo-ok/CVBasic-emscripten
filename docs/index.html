@@ -304,11 +304,10 @@
 				return iframeElement;
 			},
 			call: () => new Promise((resolve, reject) => {
-				debugger;
 				compiler.gasm80.pendingCallback = resolve;
 			
 				// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
-				const getIframeElement = compiler.gasm80.getIframeElement();
+				const iframeElement = compiler.gasm80.getIframeElement();
 				iframeElement.src = iframeElement.src;
 			}),
 		},
@@ -365,7 +364,6 @@
 		},
 		
 		updateAssembly: async (generatedAssembly) => {
-			debugger;
 			if (!generatedAssembly) return;
 		
 			generatedAsmElement.value = generatedAssembly.join('\n');
@@ -373,7 +371,6 @@
 			
 			compiler.gasm80.call()
 			.then(context => {
-				debugger;
 				assembleCode(generatedAsmElement.value, context);
 			});
 		},
