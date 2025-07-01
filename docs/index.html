@@ -308,7 +308,15 @@
 			
 				// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
 				const iframeElement = compiler.gasm80.getIframeElement();
-				iframeElement.src = iframeElement.src;
+				if (iframeElement) {
+					iframeElement.src = iframeElement.src;
+				} else {
+					const newIframeElement = document.createElement('iframe');
+					newIframeElement.id = 'gasm80-iframe';
+					newIframeElement.src = './gasm80-iframe.html';					
+					newIframeElement.setAttribute('style', 'display: none');
+					document.body.appendChild(newIframeElement);
+				}				
 			}),
 		},
 	  
@@ -587,7 +595,6 @@
     <script async type="text/javascript" src="FileSaver.js"></script>
 
 	<iframe id="cvbasic-iframe" src="./cvbasic-iframe.html" title="gasm80" style="display: none"></iframe>
-	<iframe id="gasm80-iframe" src="./gasm80-iframe.html" title="gasm80" style="display: none"></iframe>
 	 
 	<script>
 		EJS_player = "#emulator";
