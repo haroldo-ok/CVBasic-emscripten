@@ -283,30 +283,18 @@
 		window.setTimeout(() => top.gui.updateEmulator(generatedROM), 0);
 	  };
 	  
-	  window.compiler = {
-		cvbasic: {
-			pendingCallback: null,
-			call: () => new Promise((resolve, reject) => {
-				compiler.cvbasic.pendingCallback = resolve;
-			
-				// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
-				const moduleName = 'cvbasic';
-				const iframeElement = document.getElementById(`${moduleName}-iframe`);
-				iframeElement.src = iframeElement.src;								
-			}),
-		},
-	  
-		gasm80: {
+	  const createToolInvoker = moduleName => {
+		const that = {
 			pendingCallback: null,
 			
 			getIframeElement: () => {
-				const moduleName = 'gasm80';
-				const iframeElement = document.getElementById(`${moduleName}-iframe`);
+				const iframeId = `${moduleName}-iframe`;
+				const iframeElement = document.getElementById(iframeId);
 				if (iframeElement) {
 					return iframeElement;
 				} else {
 					const newIframeElement = document.createElement('iframe');
-					newIframeElement.id = 'gasm80-iframe';
+					newIframeElement.id = iframeId;
 					newIframeElement.setAttribute('style', 'display: none');
 					document.body.appendChild(newIframeElement);
 					return newIframeElement;
@@ -314,13 +302,20 @@
 			},
 			
 			call: () => new Promise((resolve, reject) => {
-				compiler.gasm80.pendingCallback = resolve;
+				that.pendingCallback = resolve;
 			
 				// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
-				const iframeElement = compiler.gasm80.getIframeElement();
-				iframeElement.src = './gasm80-iframe.html';					
+				const iframeElement = that.getIframeElement();
+				iframeElement.src = `./${moduleName}-iframe.html`;
 			}),
-		},
+		};
+		
+		return that;
+	  };
+	  
+	  window.compiler = {
+		cvbasic: createToolInvoker('cvbasic'),
+		gasm80: createToolInvoker('gasm80'),
 	  
 		handleIframeCallback: (moduleName, iframeWindow) => {
 			const onFileSystemReady = () => {
