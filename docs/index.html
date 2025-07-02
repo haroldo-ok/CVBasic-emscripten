@@ -282,7 +282,7 @@
 		
 		window.setTimeout(() => top.gui.updateEmulator(generatedROM), 0);
 	  };
-
+	  
 	  window.compiler = {
 		cvbasic: {
 			pendingCallback: null,
@@ -298,25 +298,27 @@
 	  
 		gasm80: {
 			pendingCallback: null,
+			
 			getIframeElement: () => {
 				const moduleName = 'gasm80';
 				const iframeElement = document.getElementById(`${moduleName}-iframe`);
-				return iframeElement;
+				if (iframeElement) {
+					return iframeElement;
+				} else {
+					const newIframeElement = document.createElement('iframe');
+					newIframeElement.id = 'gasm80-iframe';
+					newIframeElement.setAttribute('style', 'display: none');
+					document.body.appendChild(newIframeElement);
+					return newIframeElement;
+				}
 			},
+			
 			call: () => new Promise((resolve, reject) => {
 				compiler.gasm80.pendingCallback = resolve;
 			
 				// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
 				const iframeElement = compiler.gasm80.getIframeElement();
-				if (iframeElement) {
-					iframeElement.src = iframeElement.src;
-				} else {
-					const newIframeElement = document.createElement('iframe');
-					newIframeElement.id = 'gasm80-iframe';
-					newIframeElement.src = './gasm80-iframe.html';					
-					newIframeElement.setAttribute('style', 'display: none');
-					document.body.appendChild(newIframeElement);
-				}				
+				iframeElement.src = './gasm80-iframe.html';					
 			}),
 		},
 	  
