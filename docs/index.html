@@ -308,6 +308,24 @@
 				const iframeElement = that.getIframeElement();
 				iframeElement.src = `./${moduleName}-iframe.html`;
 			}),
+			
+			handleIframeCallback: (iframeWindow) => {
+				const onFileSystemReady = () => {
+					if (iframeWindow.FS) {
+						if (!compiler.cvbasic.pendingCallback) {
+							throw new Error(`No callback for ${moduleName}.`);
+						}
+						compiler[moduleName].pendingCallback(iframeWindow);
+					} else {
+						if (onFileSystemReady.retries > 8) {
+							throw new Error(`FS failed to load for ${moduleName}.`);
+						}
+						onFileSystemReady.retries++;
+						window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
+					}
+				};
+				window.setTimeout(onFileSystemReady, 50);			
+			},
 		};
 		
 		return that;
@@ -315,25 +333,7 @@
 	  
 	  window.compiler = {
 		cvbasic: createToolInvoker('cvbasic'),
-		gasm80: createToolInvoker('gasm80'),
-	  
-		handleIframeCallback: (moduleName, iframeWindow) => {
-			const onFileSystemReady = () => {
-				if (iframeWindow.FS) {
-					if (!compiler.cvbasic.pendingCallback) {
-						throw new Error(`No callback for ${moduleName}.`);
-					}
-					compiler[moduleName].pendingCallback(iframeWindow);
-				} else {
-					if (onFileSystemReady.retries > 8) {
-						throw new Error(`FS failed to load for ${moduleName}.`);
-					}
-					onFileSystemReady.retries++;
-					window.setTimeout(onFileSystemReady, onFileSystemReady.retries * 100);
-				}
-			};
-			window.setTimeout(onFileSystemReady, 50);			
-		}
+		gasm80: createToolInvoker('gasm80'),	  
 	  };
 	  window.setTimeout(() => compiler.cvbasic.call().then(loadExamples), 0);
 	  
