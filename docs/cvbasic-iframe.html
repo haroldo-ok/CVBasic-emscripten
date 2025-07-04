@@ -8,32 +8,7 @@
   <body>
     <script type='text/javascript'>
 	  top.compiler.cvbasic.handleIframeCallback(window);
-
-      var Module = {
-        preRun: [],		
-        postRun: [],
-		
-        print: function(text) {
-			top.Module.print('cvbasic: ' + text);
-		},
-		
-        printErr: function(text) {
-		  top.Module.printErr('cvbasic: ' + text);
-        },
-		
-        setStatus: function(text) {
-		  top.Module.setStatus(text);
-        },
-        totalDependencies: 0,
-        monitorRunDependencies: function(left) {
-          this.totalDependencies = Math.max(this.totalDependencies, left);
-          console.log(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-        }
-      };
-      Module.setStatus('Downloading...');
-      window.onerror = function() {
-		top.onerror();
-      };
+      var Module = top.compiler.status.createToolConfiguration('cvbasic', window);
     </script>
 	
     <script async type="text/javascript" src="cvbasic.js"></script>

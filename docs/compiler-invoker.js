@@ -114,7 +114,38 @@ const Module = {
 	monitorRunDependencies: function(left) {
 		this.totalDependencies = Math.max(this.totalDependencies, left);
 		Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-	}
+	},
+	
+	createToolConfiguration: function(moduleName, context) {
+		const config = {
+			preRun: [],		
+			postRun: [],
+
+			print: function(text) {
+				Module.print(`${moduleName}:  ${text}`);
+			},
+
+			printErr: function(text) {
+				Module.printErr(`${moduleName}:  ${text}`);
+			},
+
+			setStatus: function(text) {
+				Module.setStatus(text);
+			},
+			totalDependencies: 0,
+			monitorRunDependencies: function(left) {
+				this.totalDependencies = Math.max(this.totalDependencies, left);
+				console.log(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+			}
+		};
+		
+		config.setStatus('Downloading...');
+		context.onerror = function() {
+			top.onerror();
+		};
+		
+		return config;
+	},
 };
   
 Module.setStatus('Downloading...');

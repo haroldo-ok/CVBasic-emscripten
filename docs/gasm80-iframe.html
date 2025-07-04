@@ -8,32 +8,7 @@
   <body>
     <script type='text/javascript'>
 	  top.compiler.gasm80.handleIframeCallback(window);
-
-      var Module = {
-        preRun: [],		
-        postRun: [],
-		
-        print: function(text) {
-			top.Module.print('gasm80: ' + text);
-		},
-		
-        printErr: function(text) {
-		  top.Module.printErr('gasm80: ' + text);
-        },
-		
-        setStatus: function(text) {
-		  top.Module.setStatus(text);
-        },
-        totalDependencies: 0,
-        monitorRunDependencies: function(left) {
-          this.totalDependencies = Math.max(this.totalDependencies, left);
-          console.log(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-        }
-      };
-      Module.setStatus('Downloading...');
-      window.onerror = function() {
-		top.onerror();
-      };
+      var Module = top.compiler.status.createToolConfiguration('gasm80', window);
     </script>
 	
     <script async type="text/javascript" src="gasm80.js"></script>
