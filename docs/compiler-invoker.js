@@ -2,6 +2,11 @@
 
 (() => {
 	
+const scriptSrc = document.currentScript.src;
+const url = new URL(scriptSrc);
+const ideVersion = url.searchParams.get('ideVersion');
+console.info('ideVersion:' , ideVersion);
+	
 const createToolInvoker = moduleName => {
 	const that = {
 		pendingCallback: null,
@@ -23,9 +28,9 @@ const createToolInvoker = moduleName => {
 		call: () => new Promise((resolve, reject) => {
 			that.pendingCallback = resolve;
 		
-			// TODO: Fix this ugly hack, but taking into consideration that "cvbasic" doesn't clean variables between runs.
+			// TODO: Fix this ugly hack, but taking into consideration that neither "cvbasic" nor "gasm80" clean their internal variables between runs.
 			const iframeElement = that.getIframeElement();
-			iframeElement.src = `./${moduleName}-iframe.html`;
+			iframeElement.src = `./${moduleName}-iframe.html?ideVersion=${ideVersion}`;
 		}),
 		
 		handleIframeCallback: (iframeWindow) => {
