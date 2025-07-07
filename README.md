@@ -2,7 +2,7 @@
 
 **W.I.P. (Work In Progress)**
 
-CVBasic-emscripten is an experimental project to compile CVBasic into JavaScript using Emscripten, enabling it to run directly in the browser.
+CVBasic-emscripten is an experimental project to compile nanochess' [CVBasic](https://github.com/nanochess/CVBasic) into JavaScript using Emscripten, enabling it to run directly in the browser.
 
 You can acess it from this link: https://haroldo-ok.github.io/CVBasic-emscripten/
 
@@ -15,7 +15,9 @@ You can acess it from this link: https://haroldo-ok.github.io/CVBasic-emscripten
 
 ## What is CVBasic?
 
-CVBasic is a lightweight BASIC compiler, designed for educational and retro-computing purposes. This project aims to bring CVBasic to the web by compiling the codebase with Emscripten, allowing users to compile CVBasic programs directly in the browser without plugins or installation.
+CVBasic is a lightweight BASIC compiler made by [nanochess](https://github.com/nanochess), designed for educational and retro-computing purposes. This project aims to bring CVBasic to the web by compiling the codebase with Emscripten, allowing users to compile CVBasic programs directly in the browser without plugins or installation.
+
+See: https://github.com/nanochess/CVBasic
 
 ## Features
 
