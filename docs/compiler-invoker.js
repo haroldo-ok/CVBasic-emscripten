@@ -2,6 +2,11 @@
 
 (() => {
 	
+const scriptSrc = document.currentScript.src;
+const url = new URL(scriptSrc);
+const ideVersion = url.searchParams.get('ideVersion');
+console.info('ideVersion:' , ideVersion);
+	
 const createToolInvoker = moduleName => {
 	const that = {
 		pendingCallback: null,
