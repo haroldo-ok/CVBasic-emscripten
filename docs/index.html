@@ -449,8 +449,13 @@
 			emulatorContainerElement.addEventListener('keyup', preventDefaultIfArrowPressed);
 		},
 		
+		captureCodeEditorEvents: () => {
+			inputBasicElement.addEventListener('change', () => console.info('Changed!'));
+		},
+
 		captureEvents: () => {
 			gui.captureEmulatorEvents();
+			gui.captureCodeEditorEvents();
 		},
 	  };
 	  
