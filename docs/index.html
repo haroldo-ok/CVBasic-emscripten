@@ -450,7 +450,14 @@
 		},
 		
 		captureCodeEditorEvents: () => {
-			inputBasicElement.addEventListener('change', () => console.info('Changed!'));
+			const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
+		
+			handleCodeEditorInput = () => {
+				console.info('Changed!');
+				localStorage[SAVED_CODE_KEY] = inputBasicElement.value;
+			};
+		
+			inputBasicElement.addEventListener('change', handleCodeEditorInput);
 		},
 
 		captureEvents: () => {
