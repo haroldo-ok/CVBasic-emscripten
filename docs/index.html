@@ -197,6 +197,16 @@
 	  
 	  window.generatedAssemblyCode = null;
 	  
+	  const debounce = (callback, wait) => {
+		let timeoutId = null;
+		return (...args) => {
+			window.clearTimeout(timeoutId);
+			timeoutId = window.setTimeout(() => {
+				callback(...args);
+			}, wait);
+		};
+	  }
+	  
 	  const loadExamples = context => {
 		const loadExample = fileName => {
 			inputBasicElement.value = context.FS.readFile('examples/' + fileName, { encoding: 'utf8' });		
