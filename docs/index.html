@@ -475,6 +475,8 @@
 			
 			const handleCodeEditorInputDebounced = debounce(handleCodeEditorInput, 300);
 		
+			inputBasicElement.addEventListener('keydown', handleCodeEditorInputDebounced);
+			inputBasicElement.addEventListener('keyup', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
 		},
 
