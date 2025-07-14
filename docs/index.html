@@ -462,12 +462,20 @@
 		captureCodeEditorEvents: () => {
 			const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
 		
-			handleCodeEditorInput = () => {
+			const handleCodeEditorInput = () => {
+				if ((gui.unchangedCode || '') == inputBasicElement.value) {
+					console.info('Unchanged!');
+					return;
+				}
+			
 				console.info('Changed!');
 				localStorage[SAVED_CODE_KEY] = inputBasicElement.value;
+				gui.unchangedCode = inputBasicElement.value;
 			};
+			
+			const handleCodeEditorInputDebounced = debounce(handleCodeEditorInput, 300);
 		
-			inputBasicElement.addEventListener('change', handleCodeEditorInput);
+			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
 		},
 
 		captureEvents: () => {
