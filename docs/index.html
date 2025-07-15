@@ -217,7 +217,9 @@
 		const exampleFileNames = context.FS.readdir('examples').filter(name => name.endsWith('.bas'));
 		exampleFileNames.forEach(fileName => exampleSourcesElement.add(new Option(fileName)));
 
-		loadExample('face_joystick.bas');
+		if (!inputBasicElement.value) {
+			loadExample('face_joystick.bas');
+		}
 		exampleSourcesElement.addEventListener('click', () => {
 			if (exampleSourcesElement.value) loadExample(exampleSourcesElement.value);
 		});
@@ -461,6 +463,11 @@
 			emulatorContainerElement.addEventListener('keyup', preventDefaultIfArrowPressed);
 		},
 		
+		loadCodeEditorContent: () => {
+			inputBasicElement.value = localStorage[SAVED_CODE_KEY];
+			gui.unchangedCode = inputBasicElement.value;
+		},
+		
 		captureCodeEditorEvents: () => {	
 			const handleCodeEditorInput = () => {
 				if ((gui.unchangedCode || '') == inputBasicElement.value) {
@@ -478,6 +485,8 @@
 			inputBasicElement.addEventListener('keydown', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('keyup', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
+			
+			gui.loadCodeEditorContent();
 		},
 
 		captureEvents: () => {
