@@ -209,22 +209,6 @@
 		};
 	  }
 	  
-	  const loadExamples = context => {
-		const loadExample = fileName => {
-			inputBasicElement.value = context.FS.readFile('examples/' + fileName, { encoding: 'utf8' });		
-		};
-
-		const exampleFileNames = context.FS.readdir('examples').filter(name => name.endsWith('.bas'));
-		exampleFileNames.forEach(fileName => exampleSourcesElement.add(new Option(fileName)));
-
-		if (!inputBasicElement.value) {
-			loadExample('face_joystick.bas');
-		}
-		exampleSourcesElement.addEventListener('click', () => {
-			if (exampleSourcesElement.value) loadExample(exampleSourcesElement.value);
-		});
-	  };
-	  	  
 	  const selectTextOnInput = (element, textToFind) => {
 		const text = element.value;
 		const startIndex = text.indexOf(textToFind);
@@ -294,10 +278,24 @@
 		
 		window.setTimeout(() => top.gui.updateEmulator(generatedROM), 0);
 	  };
-	  
-	  window.setTimeout(() => compiler.cvbasic.call().then(loadExamples), 0);
-	  
+	  	  
 	  window.gui = {
+		loadExamples: (context) => {
+			const loadExample = fileName => {
+				inputBasicElement.value = context.FS.readFile('examples/' + fileName, { encoding: 'utf8' });		
+			};
+
+			const exampleFileNames = context.FS.readdir('examples').filter(name => name.endsWith('.bas'));
+			exampleFileNames.forEach(fileName => exampleSourcesElement.add(new Option(fileName)));
+
+			if (!inputBasicElement.value) {
+				loadExample('face_joystick.bas');
+			}
+			exampleSourcesElement.addEventListener('click', () => {
+				if (exampleSourcesElement.value) loadExample(exampleSourcesElement.value);
+			});
+		},
+	  	  
 		handleTargetHardwareClick: () => {
 			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];			
 			emulatorContainerElement.classList.add('loading');
@@ -495,6 +493,7 @@
 		},
 	  };
 	  
+	  window.setTimeout(() => compiler.cvbasic.call().then(gui.loadExamples), 0);
 	  window.setTimeout(() => gui.handleTargetHardwareClick(), 0);
 	  window.setTimeout(() => gui.captureEvents(), 0);
     </script>
