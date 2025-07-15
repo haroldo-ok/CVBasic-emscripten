@@ -192,6 +192,8 @@
 		'sms': 'sms',
 	  };
 	  
+	  const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
+
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
@@ -459,9 +461,7 @@
 			emulatorContainerElement.addEventListener('keyup', preventDefaultIfArrowPressed);
 		},
 		
-		captureCodeEditorEvents: () => {
-			const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
-		
+		captureCodeEditorEvents: () => {	
 			const handleCodeEditorInput = () => {
 				if ((gui.unchangedCode || '') == inputBasicElement.value) {
 					console.info('Unchanged!');
