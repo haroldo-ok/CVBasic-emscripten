@@ -294,7 +294,11 @@
 				loadExample('face_joystick.bas');
 			}
 			exampleSourcesElement.addEventListener('click', () => {
-				if (exampleSourcesElement.value) loadExample(exampleSourcesElement.value);
+				if (exampleSourcesElement.value) {
+					loadExample(exampleSourcesElement.value);
+				} else {
+					gui.loadCodeEditorContent();
+				}
 			});
 		},
 	  	  
@@ -464,7 +468,7 @@
 		},
 		
 		loadCodeEditorContent: () => {
-			inputBasicElement.value = localStorage[SAVED_CODE_KEY];
+			inputBasicElement.value = localStorage[SAVED_CODE_KEY] || '';
 			gui.unchangedCode = inputBasicElement.value;
 		},
 		
