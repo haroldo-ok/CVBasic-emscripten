@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.15</title>
+    <title>CVBasic online compiler v0.0.16</title>
 	<link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
@@ -94,7 +94,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.15</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.16</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -168,7 +168,7 @@
 		<textarea class="emscripten nes-textarea" id="output" rows="6" readonly></textarea>
 	</div>
 
-	<script src="./compiler-invoker.js?ideVersion=v0.0.15"></script>	 
+	<script src="./compiler-invoker.js?ideVersion=v0.0.16"></script>	 
 	
     <script type='text/javascript'>	  
       const inputBasicElement = document.getElementById('input-basic');
@@ -192,25 +192,23 @@
 		'sms': 'sms',
 	  };
 	  
+	  const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
+
       generatedAsmElement.value = '';
       outputElement.value = '';
 	  
 	  window.generatedAssemblyCode = null;
 	  
-	  const loadExamples = context => {
-		const loadExample = fileName => {
-			inputBasicElement.value = context.FS.readFile('examples/' + fileName, { encoding: 'utf8' });		
+	  const debounce = (callback, wait) => {
+		let timeoutId = null;
+		return (...args) => {
+			window.clearTimeout(timeoutId);
+			timeoutId = window.setTimeout(() => {
+				callback(...args);
+			}, wait);
 		};
-
-		const exampleFileNames = context.FS.readdir('examples').filter(name => name.endsWith('.bas'));
-		exampleFileNames.forEach(fileName => exampleSourcesElement.add(new Option(fileName)));
-
-		loadExample('face_joystick.bas');
-		exampleSourcesElement.addEventListener('click', () => {
-			if (exampleSourcesElement.value) loadExample(exampleSourcesElement.value);
-		});
-	  };
-	  	  
+	  }
+	  
 	  const selectTextOnInput = (element, textToFind) => {
 		const text = element.value;
 		const startIndex = text.indexOf(textToFind);
@@ -280,10 +278,30 @@
 		
 		window.setTimeout(() => top.gui.updateEmulator(generatedROM), 0);
 	  };
-	  
-	  window.setTimeout(() => compiler.cvbasic.call().then(loadExamples), 0);
-	  
+	  	  
 	  window.gui = {
+	  
+		loadExamples: (context) => {
+			const loadExample = fileName => {
+				inputBasicElement.value = context.FS.readFile('examples/' + fileName, { encoding: 'utf8' });		
+				gui.unchangedCode = inputBasicElement.value;
+			};
+
+			const exampleFileNames = context.FS.readdir('examples').filter(name => name.endsWith('.bas'));
+			exampleFileNames.forEach(fileName => exampleSourcesElement.add(new Option(fileName)));
+
+			if (!inputBasicElement.value) {
+				loadExample('face_joystick.bas');
+			}
+			exampleSourcesElement.addEventListener('click', () => {
+				if (exampleSourcesElement.value) {
+					loadExample(exampleSourcesElement.value);
+				} else {
+					gui.loadCodeEditorContent();
+				}
+			});
+		},
+	  	  
 		handleTargetHardwareClick: () => {
 			const emulatorCoreName = EMULATOR_CORE_NAMES[targetHardwareElement.value];			
 			emulatorContainerElement.classList.add('loading');
@@ -449,11 +467,39 @@
 			emulatorContainerElement.addEventListener('keyup', preventDefaultIfArrowPressed);
 		},
 		
+		loadCodeEditorContent: () => {
+			inputBasicElement.value = localStorage[SAVED_CODE_KEY] || '';
+			gui.unchangedCode = inputBasicElement.value;
+		},
+		
+		captureCodeEditorEvents: () => {	
+			const handleCodeEditorInput = () => {
+				if ((gui.unchangedCode || '') == inputBasicElement.value) {
+					console.info('Unchanged!');
+					return;
+				}
+			
+				console.info('Changed!');
+				localStorage[SAVED_CODE_KEY] = inputBasicElement.value;
+				gui.unchangedCode = inputBasicElement.value;
+			};
+			
+			const handleCodeEditorInputDebounced = debounce(handleCodeEditorInput, 300);
+		
+			inputBasicElement.addEventListener('keydown', handleCodeEditorInputDebounced);
+			inputBasicElement.addEventListener('keyup', handleCodeEditorInputDebounced);
+			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
+			
+			gui.loadCodeEditorContent();
+		},
+
 		captureEvents: () => {
 			gui.captureEmulatorEvents();
+			gui.captureCodeEditorEvents();
 		},
 	  };
 	  
+	  window.setTimeout(() => compiler.cvbasic.call().then(gui.loadExamples), 0);
 	  window.setTimeout(() => gui.handleTargetHardwareClick(), 0);
 	  window.setTimeout(() => gui.captureEvents(), 0);
     </script>
