@@ -280,9 +280,11 @@
 	  };
 	  	  
 	  window.gui = {
+	  
 		loadExamples: (context) => {
 			const loadExample = fileName => {
 				inputBasicElement.value = context.FS.readFile('examples/' + fileName, { encoding: 'utf8' });		
+				gui.unchangedCode = inputBasicElement.value;
 			};
 
 			const exampleFileNames = context.FS.readdir('examples').filter(name => name.endsWith('.bas'));
