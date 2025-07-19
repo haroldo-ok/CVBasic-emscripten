@@ -57,11 +57,15 @@
 	  
 	  .emulator-container {
 		width:100%;
+	  }
+	  
+	  .emulator-inner-container {
 		aspect-ratio: 640 / 480;
 		background: blue;
 	  }
 	  
-	  .emulator-container.no-emulator-available {
+	  .emulator-container.no-emulator-available,
+	  .emulator-container.no-emulator-available	.emulator-inner-container {
 	    aspect-ratio: auto;
 		background: none;
 	  }
@@ -157,7 +161,9 @@
 
 			<div class="emulator-container loading">
 				<label class="no-emulator-available">No emulator available, yet.</label>
-				<div id="emulator"></div>
+				<div class="emulator-inner-container">
+					<div id="emulator"></div>
+				</div>
 				<label class="emulator-instructions">The emulator uses Z and X for the buttons and the arrow keys for up, down, left and right.</label>
 			</div>
 			
