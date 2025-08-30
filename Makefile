@@ -14,3 +14,6 @@ docs/gasm80.js: gasm80/gasm80.c
 	
 serve:
 	cd docs	&& python -m SimpleHTTPServer
+
+clean:
+	rm $(DIR_DOCS)/*
