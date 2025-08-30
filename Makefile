@@ -1,4 +1,10 @@
-all: docs/cvbasic.js docs/gasm80.js
+DIR_STATIC=src/static
+DIR_DOCS=docs
+
+STATIC_SOURCES := $(wildcard $(DIR_STATIC)/*)
+
+all: docs/cvbasic.js docs/gasm80.js $(STATIC_SOURCES)
+	cp $(DIR_STATIC)/* $(DIR_DOCS)
 
 docs/cvbasic.js: CVBasic/cvbasic.c CVBasic/node.c CVBasic/driver.c CVBasic/cpu6502.c CVBasic/cpuz80.c CVBasic/cpu9900.c
 	cd CVBasic && emcc -s INVOKE_RUN=0 -s NO_EXIT_RUNTIME=1 --embed-file ../src/embed/@/ --shell-file ../src/shell_minimal.html cvbasic.c node.c driver.c cpu6502.c cpuz80.c cpu9900.c -o ../docs/cvbasic.js
