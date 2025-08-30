@@ -5,3 +5,6 @@ docs/cvbasic.js: CVBasic/cvbasic.c CVBasic/node.c CVBasic/driver.c CVBasic/cpu65
 
 docs/gasm80.js: gasm80/gasm80.c
 	cd gasm80 && emcc -s INVOKE_RUN=0 -s NO_EXIT_RUNTIME=1 -s EXPORT_NAME="'Gasm80'" --embed-file ../src/embed_gasm80/@/ --shell-file ../src/shell_minimal_gasm80.html gasm80.c -o ../docs/gasm80.js
+	
+serve:
+	cd docs	&& python -m SimpleHTTPServer
