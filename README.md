@@ -33,7 +33,10 @@ See: https://github.com/nanochess/CVBasic
     ```bash
     git clone --recurse-submodules https://github.com/haroldo-ok/CVBasic-emscripten.git
     ```
+    
 2. (Planned) Build instructions using Emscripten will be provided soon.
+
+    This was tested with version `0.27.0` of Emscripten.
 
 3. Open the generated HTML/JS files in your browser to try out CVBasic.
 
