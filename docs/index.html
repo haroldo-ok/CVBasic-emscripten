@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.19</title>
+    <title>CVBasic online compiler v0.0.20</title>
 	<link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
@@ -99,7 +99,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.19</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.20</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -139,6 +139,7 @@
 				<option value="ti994a">Texas Instruments TI-99/4A (32K RAM)</option>
 				<option value="nabu">NABU PC (64K RAM)</option>
 				<option value="sms">Sega Master System (8K RAM)</option>
+				<option value="nes">NES/Famicom</option>
 			  </select>
 			</div>
 
@@ -176,7 +177,7 @@
 		<textarea class="emscripten nes-textarea" id="output" rows="6" readonly></textarea>
 	</div>
 
-	<script src="./compiler-invoker.js?ideVersion=v0.0.19"></script>	 
+	<script src="./compiler-invoker.js?ideVersion=v0.0.20"></script>	 
 	
     <script type='text/javascript'>	  
       const inputBasicElement = document.getElementById('input-basic');
@@ -193,11 +194,13 @@
 		'sg1000': 'segaMS',
 		'sgm': 'coleco',
 		'sms': 'segaMS',
+		'nes': 'nes',
 	  };
 	  
 	  const ROM_EXTENSIONS = {
 		'sg1000': 'sg',
 		'sms': 'sms',
+		'nes': 'nes',
 	  };
 	  
 	  const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
