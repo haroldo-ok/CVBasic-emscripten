@@ -509,10 +509,23 @@
 			
 			const handleCodeEditorInputDebounced = debounce(handleCodeEditorInput, 300);
 		
+			/* Adapted from:
+			 * - https://stackoverflow.com/a/18303822/679240
+			 * - https://stackoverflow.com/a/45396754/679240
+			 */
+			function handleCodeEditorTabInput(e) {
+				if(e.keyCode === 9) { // tab was pressed
+					// Insert the tab character
+					document.execCommand('insertText', false, "\t");					
+					e.preventDefault();
+				}
+			}
+			
+			inputBasicElement.addEventListener('keydown', handleCodeEditorTabInput, false);			
 			inputBasicElement.addEventListener('keydown', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('keyup', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
-			
+						
 			gui.loadCodeEditorContent();
 		},
 

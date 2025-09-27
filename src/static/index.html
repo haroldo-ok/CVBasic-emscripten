@@ -509,25 +509,22 @@
 			
 			const handleCodeEditorInputDebounced = debounce(handleCodeEditorInput, 300);
 		
-			// Adapted from https://stackoverflow.com/a/18303822/679240
+			/* Adapted from:
+			 * - https://stackoverflow.com/a/18303822/679240
+			 * - https://stackoverflow.com/a/45396754/679240
+			 */
 			function handleCodeEditorTabInput(e) {
-				if(e.keyCode === 9) { // tab was pressed
-					// get caret position/selection
-					var start = this.selectionStart;
-					var end = this.selectionEnd;
-
-					var target = e.target;
-					var value = target.value;
-
-					// set textarea value to: text before caret + tab + text after caret
-					target.value = value.substring(0, start)
-								+ "\t"
-								+ value.substring(end);
-
-					// put caret at right position again (add one for the tab)
-					this.selectionStart = this.selectionEnd = start + 1;
-
-					// prevent the focus lose
+				if (e.keyCode === 9) { // tab was pressed
+					if (e.shiftKey) {
+						// Insert the tab character in a way that can be undone by the browser
+						var text = this.value;
+						if (this.selectionStart > 0 && text[this.selectionStart - 1] == '\t') {
+							document.execCommand('delete');
+						}						
+					} else {
+						// Insert the tab character in a way that can be undone by the browser
+						document.execCommand('insertText', false, "\t");					
+					}
 					e.preventDefault();
 				}
 			}
