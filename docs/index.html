@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.20</title>
+    <title>CVBasic online compiler v0.0.21</title>
 	<link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
@@ -99,7 +99,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.20</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.21</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -157,7 +157,7 @@
 				🔽 Download Generated ROM
 			</button>
 			<button class="nes-btn is-secondary" id="embed-rom-as-html" onclick="window.gui.handleEmbedHtmlButtonClick()">
-				📄 Embed ROM as HTML
+				🌐 Embed ROM as HTML
 			</button>
 
 			<div class="emulator-container loading">
@@ -169,6 +169,9 @@
 			</div>
 			
 			<textarea class="emscripten nes-textarea" id="generated-asm" rows="24" readonly></textarea>
+			<button class="nes-btn is-secondary" id="download-generated-asm" onclick="window.gui.handleDownloadAsmButtonClick()">
+				📜 Download Generated Assembly
+			</button>
 		</div>
 	</div>	
 
@@ -177,7 +180,7 @@
 		<textarea class="emscripten nes-textarea" id="output" rows="6" readonly></textarea>
 	</div>
 
-	<script src="./compiler-invoker.js?ideVersion=v0.0.20"></script>	 
+	<script src="./compiler-invoker.js?ideVersion=v0.0.21"></script>	 
 	
     <script type='text/javascript'>	  
       const inputBasicElement = document.getElementById('input-basic');
@@ -187,6 +190,7 @@
 	  window.targetHardwareElement = document.getElementById('target-hardware');
 	  const downloadGeneratedRomButton = document.getElementById('download-generated-rom');	  
 	  const downloadEmbedRomAsHtmlButton = document.getElementById('embed-rom-as-html');
+	  const downloadGeneratedAsmButton = document.getElementById('download-generated-asm');	  
 	  const emulatorContainerElement = document.getElementsByClassName('emulator-container')[0];
 	  
 	  const EMULATOR_CORE_NAMES = {
@@ -287,7 +291,10 @@
 		
 		const generatedROM = context.FS.readFile(SOURCE_ROM);
 		
-		window.setTimeout(() => top.gui.updateEmulator(generatedROM), 0);
+		window.setTimeout(() => {
+			top.gui.updateEmulator(generatedROM);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}, 0);
 	  };
 	  	  
 	  window.gui = {
@@ -357,6 +364,7 @@
 		
 		checkDownloadButtonEnabled: () => {
 			downloadGeneratedRomButton.classList[window.generatedROM ? 'remove' : 'add']('is-disabled');
+			downloadGeneratedAsmButton.classList[window.generatedROM ? 'remove' : 'add']('is-disabled');
 			
 			const isRomGeneratedAndEmulatorAvailable = window.generatedROM && EMULATOR_CORE_NAMES[targetHardwareElement.value];
 			downloadEmbedRomAsHtmlButton.classList[isRomGeneratedAndEmulatorAvailable ? 'remove' : 'add']('is-disabled');
@@ -372,6 +380,10 @@
 			saveAs(new Blob([window.generatedROM]), 'game-' + new Date().toISOString() + '.' + fileExtension);
 		},
 		
+		handleDownloadAsmButtonClick: () => {
+			saveAs(new Blob([generatedAsmElement.value]), 'game-' + new Date().toISOString() + '.asm');
+		},
+
 		handleEmbedHtmlButtonClick: () => {
 			if (!window.generatedROM) {
 				alert('Sorry, but youm must compile something, first.');
