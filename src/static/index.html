@@ -190,6 +190,7 @@
 	  window.targetHardwareElement = document.getElementById('target-hardware');
 	  const downloadGeneratedRomButton = document.getElementById('download-generated-rom');	  
 	  const downloadEmbedRomAsHtmlButton = document.getElementById('embed-rom-as-html');
+	  const downloadGeneratedAsmButton = document.getElementById('download-generated-asm');	  
 	  const emulatorContainerElement = document.getElementsByClassName('emulator-container')[0];
 	  
 	  const EMULATOR_CORE_NAMES = {
@@ -360,6 +361,7 @@
 		
 		checkDownloadButtonEnabled: () => {
 			downloadGeneratedRomButton.classList[window.generatedROM ? 'remove' : 'add']('is-disabled');
+			downloadGeneratedAsmButton.classList[window.generatedROM ? 'remove' : 'add']('is-disabled');
 			
 			const isRomGeneratedAndEmulatorAvailable = window.generatedROM && EMULATOR_CORE_NAMES[targetHardwareElement.value];
 			downloadEmbedRomAsHtmlButton.classList[isRomGeneratedAndEmulatorAvailable ? 'remove' : 'add']('is-disabled');
