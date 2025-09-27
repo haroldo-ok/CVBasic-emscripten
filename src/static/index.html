@@ -291,7 +291,10 @@
 		
 		const generatedROM = context.FS.readFile(SOURCE_ROM);
 		
-		window.setTimeout(() => top.gui.updateEmulator(generatedROM), 0);
+		window.setTimeout(() => {
+			top.gui.updateEmulator(generatedROM);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}, 0);
 	  };
 	  	  
 	  window.gui = {
