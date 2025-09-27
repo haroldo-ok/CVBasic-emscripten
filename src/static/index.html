@@ -375,6 +375,10 @@
 			saveAs(new Blob([window.generatedROM]), 'game-' + new Date().toISOString() + '.' + fileExtension);
 		},
 		
+		handleDownloadAsmButtonClick: () => {
+			saveAs(new Blob([generatedAsmElement.value]), 'game-' + new Date().toISOString() + '.asm');
+		},
+
 		handleEmbedHtmlButtonClick: () => {
 			if (!window.generatedROM) {
 				alert('Sorry, but youm must compile something, first.');
