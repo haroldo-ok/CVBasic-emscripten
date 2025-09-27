@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.21</title>
+    <title>CVBasic online compiler v0.0.22</title>
 	<link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
@@ -99,7 +99,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.21</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.22</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -180,7 +180,7 @@
 		<textarea class="emscripten nes-textarea" id="output" rows="6" readonly></textarea>
 	</div>
 
-	<script src="./compiler-invoker.js?ideVersion=v0.0.21"></script>	 
+	<script src="./compiler-invoker.js?ideVersion=v0.0.22"></script>	 
 	
     <script type='text/javascript'>	  
       const inputBasicElement = document.getElementById('input-basic');
@@ -514,9 +514,17 @@
 			 * - https://stackoverflow.com/a/45396754/679240
 			 */
 			function handleCodeEditorTabInput(e) {
-				if(e.keyCode === 9) { // tab was pressed
-					// Insert the tab character
-					document.execCommand('insertText', false, "\t");					
+				if (e.keyCode === 9) { // tab was pressed
+					if (e.shiftKey) {
+						// Insert the tab character in a way that can be undone by the browser
+						var text = this.value;
+						if (this.selectionStart > 0 && text[this.selectionStart - 1] == '\t') {
+							document.execCommand('delete');
+						}						
+					} else {
+						// Insert the tab character in a way that can be undone by the browser
+						document.execCommand('insertText', false, "\t");					
+					}
 					e.preventDefault();
 				}
 			}
