@@ -510,7 +510,7 @@
 			const handleCodeEditorInputDebounced = debounce(handleCodeEditorInput, 300);
 		
 			// Adapted from https://stackoverflow.com/a/18303822/679240
-			inputBasicElement.addEventListener('keydown',function(e) {
+			function handleCodeEditorTabInput(e) {
 				if(e.keyCode === 9) { // tab was pressed
 					// get caret position/selection
 					var start = this.selectionStart;
@@ -530,8 +530,9 @@
 					// prevent the focus lose
 					e.preventDefault();
 				}
-			},false);
+			}
 			
+			inputBasicElement.addEventListener('keydown', handleCodeEditorTabInput, false);			
 			inputBasicElement.addEventListener('keydown', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('keyup', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
