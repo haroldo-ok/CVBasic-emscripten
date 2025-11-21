@@ -115,11 +115,23 @@
 		<div class="left nes-container with-title">
 			<h3 class="title">CVBasic source code</h3>
 
-			<label for="example-sources" class="half">Example:</label>
-			<div class="nes-select">
-			  <select required id="example-sources">
-				<option value="">-- none --</option>
-			  </select>
+			<div class="side-by-side">
+				<div style="width: 50%">
+					<label for="example-sources" class="half">Example:</label>
+					<div class="nes-select">
+					  <select required id="example-sources">
+						<option value="">-- none --</option>
+					  </select>
+					</div>
+				</div>
+				<div style="width: 50%">
+					<label for="autosaved-sources" class="half">Autosaves:</label>
+					<div class="nes-select">
+					  <select id="autosaved-sources">
+						<option value="">-- none --</option>
+					  </select>
+					</div>
+				</div>
 			</div>
 			
 			<label for="target-hardware">Target:</label>
