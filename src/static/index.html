@@ -221,11 +221,13 @@
 	  
 	  const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
 	  
-	  const userCodeStorage = {
-		save: sourcecode => {
+	  window.userCodeStorage = {
+		saveCode(sourceCode) {
+			localStorage[SAVED_CODE_KEY] = sourceCode;
 		},
 		
-		load: () => {
+		loadCode() {
+			return localStorage[SAVED_CODE_KEY];
 		}
 	  };
 
@@ -511,7 +513,7 @@
 		},
 		
 		loadCodeEditorContent: () => {
-			inputBasicElement.value = localStorage[SAVED_CODE_KEY] || '';
+			inputBasicElement.value = userCodeStorage.loadCode() || '';
 			gui.unchangedCode = inputBasicElement.value;
 		},
 		
@@ -523,7 +525,7 @@
 				}
 			
 				console.info('Changed!');
-				localStorage[SAVED_CODE_KEY] = inputBasicElement.value;
+				userCodeStorage.saveCode(inputBasicElement.value);
 				gui.unchangedCode = inputBasicElement.value;
 			};
 			
