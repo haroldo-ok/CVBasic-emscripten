@@ -222,13 +222,21 @@
 	  const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
 	  
 	  window.userCodeStorage = {
+	  
 		saveCode(sourceCode) {
 			localStorage[SAVED_CODE_KEY] = sourceCode;
 		},
 		
 		loadCode() {
 			return localStorage[SAVED_CODE_KEY];
+		},
+		
+		loadList() {
+			const listAsJson = localStorage[SAVED_CODE_KEY + '-list'];
+			const list = listAsJson ? JSON.parse(list) : null;
+			return list;
 		}
+		
 	  };
 
       generatedAsmElement.value = '';
