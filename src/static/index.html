@@ -199,6 +199,7 @@
       const generatedAsmElement = document.getElementById('generated-asm');
       const outputElement = document.getElementById('output');
 	  const exampleSourcesElement = document.getElementById('example-sources');
+	  const autoSavedSourcesElement = document.getElementById('autosaved-sources');
 	  window.targetHardwareElement = document.getElementById('target-hardware');
 	  const downloadGeneratedRomButton = document.getElementById('download-generated-rom');	  
 	  const downloadEmbedRomAsHtmlButton = document.getElementById('embed-rom-as-html');
@@ -547,6 +548,11 @@
 			emulatorContainerElement.addEventListener('keyup', preventDefaultIfArrowPressed);
 		},
 		
+		loadExampleSourcesContent: () => {
+			const projects = userCodeStorage.listProjects();
+			projects.items.forEach(({id, name}) => autoSavedSourcesElement.add(new Option(name, id)));
+		},
+		
 		loadCodeEditorContent: () => {
 			inputBasicElement.value = userCodeStorage.loadCode() || '';
 			gui.unchangedCode = inputBasicElement.value;
@@ -591,6 +597,7 @@
 			inputBasicElement.addEventListener('keyup', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
 						
+			gui.loadExampleSourcesContent();
 			gui.loadCodeEditorContent();
 		},
 
