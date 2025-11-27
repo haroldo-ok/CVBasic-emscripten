@@ -231,16 +231,23 @@
 			return localStorage[SAVED_CODE_KEY];
 		},
 		
-		loadList() {
+		listProjects() {
+			if (!this._projectList) {
+				this._projectList = this.loadProjectList();
+			}
+			return this._projectList;
+		},
+		
+		loadProjectList() {
 			const listAsJson = localStorage[SAVED_CODE_KEY + '-list'];
 			const list = listAsJson ? JSON.parse(list) : null;
 			
-			// Is the save list present in storage? Return it.
+			// Is the project list present in storage? Return it.
 			if (list) {
 				return list;
 			}
 			
-			// Is the save list absent, but there is a source code in storage? Creat with one element.
+			// Is the project list absent, but there is a source code in storage? Creat with one element.
 			if (localStorage[SAVED_CODE_KEY]) {
 				return {
 					selectedId: 1,
@@ -250,7 +257,7 @@
 				};
 			}
 
-			// Nothing found? Return an empty save list.
+			// Nothing found? Return an empty project list.
 			return {
 				selectedId: 0,
 				items: []
