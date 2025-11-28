@@ -128,7 +128,7 @@
 					<label for="autosaved-sources" class="half">Autosaves:</label>
 					<div class="nes-select">
 					  <select id="autosaved-sources">
-						<option value="">-- none --</option>
+						<option value="0">-- none --</option>
 					  </select>
 					</div>
 				</div>
@@ -550,6 +550,7 @@
 		
 		loadExampleSourcesContent: () => {
 			const projects = userCodeStorage.listProjects();
+			autoSavedSourcesElement.innerHTML = '<option value="0">-- none --</option>';
 			projects.items.forEach(({id, name}) => autoSavedSourcesElement.add(new Option(name, id)));
 		},
 		
