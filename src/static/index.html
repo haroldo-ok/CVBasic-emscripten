@@ -552,6 +552,7 @@
 			const projects = userCodeStorage.listProjects();
 			autoSavedSourcesElement.innerHTML = '<option value="0">-- none --</option>';
 			projects.items.forEach(({id, name}) => autoSavedSourcesElement.add(new Option(name, id)));
+			autoSavedSourcesElement.value = projects.selectedId;
 		},
 		
 		loadCodeEditorContent: () => {
