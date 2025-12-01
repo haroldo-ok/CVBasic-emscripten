@@ -225,20 +225,24 @@
 	  window.userCodeStorage = {
 	  
 		saveCode(sourceCode) {
-			localStorage[SAVED_CODE_KEY] = sourceCode;
+			localStorage[this.getKey()] = sourceCode;
 		},
 		
 		loadCode() {
-			return localStorage[SAVED_CODE_KEY];
+			return localStorage[this.getKey()];
 		},
 		
 		listProjects() {
+			return this.getProjectList();
+		},
+		
+		getProjectList() {
 			if (!this._projectList) {
 				this._projectList = this.loadProjectList();
 			}
 			return this._projectList;
 		},
-		
+
 		loadProjectList() {
 			const listAsJson = localStorage[SAVED_CODE_KEY + '-list'];
 			const list = listAsJson ? JSON.parse(list) : null;
@@ -263,6 +267,12 @@
 				selectedId: 0,
 				items: []
 			};
+		},
+		
+		getKey() {
+			const selectedId = this.getProjectList().selectedId;
+			const suffix = selectedId > 1 ? '-' + selectedId : '';
+			return SAVED_CODE_KEY + suffix;
 		}
 		
 	  };
