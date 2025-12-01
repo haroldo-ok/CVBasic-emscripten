@@ -233,7 +233,7 @@
 		},
 		
 		listProjects() {
-			return this.getProjectList();
+			return this.getProjectList().items;
 		},
 		
 		getProjectList() {
@@ -559,10 +559,10 @@
 		},
 		
 		loadExampleSourcesContent: () => {
-			const projects = userCodeStorage.listProjects();
+			const projectList = userCodeStorage.getProjectList();
 			autoSavedSourcesElement.innerHTML = '<option value="0">-- none --</option>';
-			projects.items.forEach(({id, name}) => autoSavedSourcesElement.add(new Option(name, id)));
-			autoSavedSourcesElement.value = projects.selectedId;
+			projectList.items.forEach(({id, name}) => autoSavedSourcesElement.add(new Option(name, id)));
+			autoSavedSourcesElement.value = projectList.selectedId;
 		},
 		
 		loadCodeEditorContent: () => {
