@@ -558,7 +558,7 @@
 			emulatorContainerElement.addEventListener('keyup', preventDefaultIfArrowPressed);
 		},
 		
-		loadExampleSourcesContent: () => {
+		loadAutoSavedSourcesContent: () => {
 			const projectList = userCodeStorage.getProjectList();
 			autoSavedSourcesElement.innerHTML = '<option value="0">-- none --</option>';
 			projectList.items.forEach(({id, name}) => autoSavedSourcesElement.add(new Option(name, id)));
@@ -609,7 +609,7 @@
 			inputBasicElement.addEventListener('keyup', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
 						
-			gui.loadExampleSourcesContent();
+			gui.loadAutoSavedSourcesContent();
 			gui.loadCodeEditorContent();
 		},
 
