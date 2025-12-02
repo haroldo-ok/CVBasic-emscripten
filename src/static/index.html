@@ -236,6 +236,12 @@
 			return this.getProjectList().items;
 		},
 		
+		setSelectedId(selectedId) {
+			const projectList = this.getProjectList();
+			projectList.selectedId = parseInt(selectedId);
+			localStorage[SAVED_CODE_KEY + '-list'] = JSON.stringify(projectList);
+		},
+		
 		getProjectList() {
 			if (!this._projectList) {
 				this._projectList = this.loadProjectList();
@@ -564,6 +570,14 @@
 			projectList.items.forEach(({id, name}) => autoSavedSourcesElement.add(new Option(name, id)));
 			autoSavedSourcesElement.value = projectList.selectedId;
 		},
+
+		captureAutoSavedSourcesEvents: () => {	
+			autoSavedSourcesElement.addEventListener('click', () => {
+				if (exampleSourcesElement.value) {
+					autoSavedSourcesElement.setSelectedId(exampleSourcesElement.value);
+				}
+			});
+		},
 		
 		loadCodeEditorContent: () => {
 			inputBasicElement.value = userCodeStorage.loadCode() || '';
@@ -615,6 +629,7 @@
 
 		captureEvents: () => {
 			gui.captureEmulatorEvents();
+			gui.captureAutoSavedSourcesEvents();
 			gui.captureCodeEditorEvents();
 		},
 	  };
