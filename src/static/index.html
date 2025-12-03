@@ -236,6 +236,11 @@
 			return this.getProjectList().items;
 		},
 		
+		getSelectedId() {
+			const projectList = this.getProjectList();
+			return projectList.selectedId || 0;
+		},
+		
 		setSelectedId(selectedId) {
 			const projectList = this.getProjectList();
 			projectList.selectedId = parseInt(selectedId);
@@ -573,8 +578,9 @@
 
 		captureAutoSavedSourcesEvents: () => {	
 			autoSavedSourcesElement.addEventListener('click', () => {
-				if (exampleSourcesElement.value) {
-					autoSavedSourcesElement.setSelectedId(exampleSourcesElement.value);
+				autoSavedSourcesElement.setSelectedId(exampleSourcesElement.value);
+				if (autoSavedSourcesElement.getSelectedId() > 0) {
+					gui.loadCodeEditorContent();
 				}
 			});
 		},
