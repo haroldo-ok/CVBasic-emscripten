@@ -236,6 +236,14 @@
 			return this.getProjectList().items;
 		},
 		
+		getSelectedProjectInfo() {
+			return this.getProjectInfo(this.getSelectedId());
+		},
+		
+		getProjectInfo(projectId) {
+			return this.listProjects().find(({id}) => id == projectId);
+		},
+
 		getSelectedId() {
 			const projectList = this.getProjectList();
 			return projectList.selectedId || 0;
