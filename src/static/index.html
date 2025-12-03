@@ -225,6 +225,9 @@
 	  window.userCodeStorage = {
 	  
 		saveCode(sourceCode) {
+			if (!this.getSelectedProjectInfo()) {
+				this.createNewProject();
+			}
 			localStorage[this.getKey()] = sourceCode;
 		},
 		
@@ -252,7 +255,7 @@
 		setSelectedId(selectedId) {
 			const projectList = this.getProjectList();
 			projectList.selectedId = parseInt(selectedId);
-			localStorage[SAVED_CODE_KEY + '-list'] = JSON.stringify(projectList);
+			this.saveProjectList();
 		},
 		
 		getProjectList() {
@@ -286,6 +289,14 @@
 				selectedId: 0,
 				items: []
 			};
+		},
+		
+		saveProjectList() {
+			localStorage[SAVED_CODE_KEY + '-list'] = JSON.stringify(this.getProjectList());
+		},
+		
+		createNewProject() {
+			this.saveProjectList();
 		},
 		
 		getKey() {
