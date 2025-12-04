@@ -296,7 +296,9 @@
 		},
 		
 		createNewProject() {
-			const list = userCodeStorage.listProjects();
+			const projectList = this.getProjectList();
+			
+			const list = projectList.items;
 			const maximumId = Math.max(list.map(({id}) => id));
 
 			const hasName = (nameToFind) => !!list.find(({name}) => name === nameToFind);
@@ -309,12 +311,13 @@
 				newName = createNewName(nameSuffix);
 			}
 			
-			list.push({
-				id: maximumId + 1,
+			const newId = maximumId + 1;
+			projectList.items.push({
+				id: newId,
 				name: newName
 			});
 			
-			this.saveProjectList();
+			this.setSelectedId(newId);
 		},
 		
 		getKey() {
