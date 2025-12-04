@@ -302,8 +302,7 @@
 		},
 		
 		createNewProject() {
-			const projectList = this.getProjectList();
-			
+			const projectList = this.getProjectList();			
 			const list = projectList.items;
 
 			const hasName = (nameToFind) => !!list.find(({name}) => name === nameToFind);
@@ -645,6 +644,10 @@
 				console.info('Changed!');
 				userCodeStorage.saveCode(inputBasicElement.value);
 				gui.unchangedCode = inputBasicElement.value;
+
+				if (autoSavedSourcesElement.value != userCodeStorage.getSelectedId()) {
+					gui.loadAutoSavedSourcesContent();
+				}
 			};
 			
 			const handleCodeEditorInputDebounced = debounce(handleCodeEditorInput, 300);
