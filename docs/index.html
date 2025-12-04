@@ -295,12 +295,18 @@
 			localStorage[SAVED_CODE_KEY + '-list'] = JSON.stringify(this.getProjectList());
 		},
 		
+		createNewProjectId() {
+			const list = this.listProjects();
+			const maximumId = Math.max(...list.map(({id}) => id).filter(id => !!id));
+			return maximumId + 1;
+		},
+		
 		createNewProject() {
-			/** FIXME: This is crashing
-			const list = userCodeStorage.listProjects();
-			const maximumId = Math.max(list.map(({id}) => id));
+			const projectList = this.getProjectList();
+			
+			const list = projectList.items;
 
-			const hasName = (nameToFind) => !!list.find(({name}) => nameToFind);
+			const hasName = (nameToFind) => !!list.find(({name}) => name === nameToFind);
 			const createNewName = (n) => `Untitled ${n}`;
 			
 			let nameSuffix = 1;
@@ -310,12 +316,17 @@
 				newName = createNewName(nameSuffix);
 			}
 			
-			this.saveProjectList();
-			*/
+			const newId = this.createNewProjectId();
+			projectList.items.push({
+				id: newId,
+				name: newName
+			});
+			
+			this.setSelectedId(newId);
 		},
 		
 		getKey() {
-			const selectedId = this.getProjectList().selectedId;
+			const selectedId = this.getSelectedId();
 			const suffix = selectedId > 1 ? '-' + selectedId : '';
 			return SAVED_CODE_KEY + suffix;
 		}
@@ -612,7 +623,7 @@
 
 		captureAutoSavedSourcesEvents: () => {	
 			autoSavedSourcesElement.addEventListener('change', () => {
-				userCodeStorage.setSelectedId(exampleSourcesElement.value);
+				userCodeStorage.setSelectedId(autoSavedSourcesElement.value);
 				if (userCodeStorage.getSelectedId() > 0) {
 					gui.loadCodeEditorContent();
 				}
