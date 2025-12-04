@@ -612,7 +612,7 @@
 
 		captureAutoSavedSourcesEvents: () => {	
 			autoSavedSourcesElement.addEventListener('change', () => {
-				userCodeStorage.setSelectedId(exampleSourcesElement.value);
+				userCodeStorage.setSelectedId(autoSavedSourcesElement.value);
 				if (userCodeStorage.getSelectedId() > 0) {
 					gui.loadCodeEditorContent();
 				}
