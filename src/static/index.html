@@ -296,11 +296,10 @@
 		},
 		
 		createNewProject() {
-			/** FIXME: This is crashing
 			const list = userCodeStorage.listProjects();
 			const maximumId = Math.max(list.map(({id}) => id));
 
-			const hasName = (nameToFind) => !!list.find(({name}) => nameToFind);
+			const hasName = (nameToFind) => !!list.find(({name}) => name === nameToFind);
 			const createNewName = (n) => `Untitled ${n}`;
 			
 			let nameSuffix = 1;
@@ -310,8 +309,12 @@
 				newName = createNewName(nameSuffix);
 			}
 			
+			list.push({
+				id: maximumId + 1,
+				name: newName
+			});
+			
 			this.saveProjectList();
-			*/
 		},
 		
 		getKey() {
