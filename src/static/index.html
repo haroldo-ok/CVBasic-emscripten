@@ -296,7 +296,22 @@
 		},
 		
 		createNewProject() {
+			/** FIXME: This is crashing
+			const list = userCodeStorage.listProjects();
+			const maximumId = Math.max(list.map(({id}) => id));
+
+			const hasName = (nameToFind) => !!list.find(({name}) => nameToFind);
+			const createNewName = (n) => `Untitled ${n}`;
+			
+			let nameSuffix = 1;
+			let newName = createNewName(nameSuffix);
+			while (hasName(newName)) {
+				nameSuffix++;
+				newName = createNewName(nameSuffix);
+			}
+			
 			this.saveProjectList();
+			*/
 		},
 		
 		getKey() {
@@ -596,9 +611,9 @@
 		},
 
 		captureAutoSavedSourcesEvents: () => {	
-			autoSavedSourcesElement.addEventListener('click', () => {
-				autoSavedSourcesElement.setSelectedId(exampleSourcesElement.value);
-				if (autoSavedSourcesElement.getSelectedId() > 0) {
+			autoSavedSourcesElement.addEventListener('change', () => {
+				userCodeStorage.setSelectedId(exampleSourcesElement.value);
+				if (userCodeStorage.getSelectedId() > 0) {
 					gui.loadCodeEditorContent();
 				}
 			});
