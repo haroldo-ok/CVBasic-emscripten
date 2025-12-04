@@ -115,11 +115,23 @@
 		<div class="left nes-container with-title">
 			<h3 class="title">CVBasic source code</h3>
 
-			<label for="example-sources" class="half">Example:</label>
-			<div class="nes-select">
-			  <select required id="example-sources">
-				<option value="">-- none --</option>
-			  </select>
+			<div class="side-by-side">
+				<div class="left">
+					<label for="example-sources" class="half">Example:</label>
+					<div class="nes-select">
+					  <select required id="example-sources">
+						<option value="">-- none --</option>
+					  </select>
+					</div>
+				</div>
+				<div class="right">
+					<label for="autosaved-sources" class="half">Autosaves:</label>
+					<div class="nes-select">
+					  <select id="autosaved-sources">
+						<option value="0">-- none --</option>
+					  </select>
+					</div>
+				</div>
 			</div>
 			
 			<label for="target-hardware">Target:</label>
@@ -187,6 +199,7 @@
       const generatedAsmElement = document.getElementById('generated-asm');
       const outputElement = document.getElementById('output');
 	  const exampleSourcesElement = document.getElementById('example-sources');
+	  const autoSavedSourcesElement = document.getElementById('autosaved-sources');
 	  window.targetHardwareElement = document.getElementById('target-hardware');
 	  const downloadGeneratedRomButton = document.getElementById('download-generated-rom');	  
 	  const downloadEmbedRomAsHtmlButton = document.getElementById('embed-rom-as-html');
@@ -208,6 +221,106 @@
 	  };
 	  
 	  const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
+	  
+	  window.userCodeStorage = {
+	  
+		saveCode(sourceCode) {
+			if (!this.getSelectedProjectInfo()) {
+				this.createNewProject();
+			}
+			localStorage[this.getKey()] = sourceCode;
+		},
+		
+		loadCode() {
+			return localStorage[this.getKey()];
+		},
+		
+		listProjects() {
+			return this.getProjectList().items;
+		},
+		
+		getSelectedProjectInfo() {
+			return this.getProjectInfo(this.getSelectedId());
+		},
+		
+		getProjectInfo(projectId) {
+			return this.listProjects().find(({id}) => id == projectId);
+		},
+
+		getSelectedId() {
+			const projectList = this.getProjectList();
+			return projectList.selectedId || 0;
+		},
+		
+		setSelectedId(selectedId) {
+			const projectList = this.getProjectList();
+			projectList.selectedId = parseInt(selectedId);
+			this.saveProjectList();
+		},
+		
+		getProjectList() {
+			if (!this._projectList) {
+				this._projectList = this.loadProjectList();
+			}
+			return this._projectList;
+		},
+
+		loadProjectList() {
+			const listAsJson = localStorage[SAVED_CODE_KEY + '-list'];
+			const list = listAsJson ? JSON.parse(listAsJson) : null;
+			
+			// Is the project list present in storage? Return it.
+			if (list) {
+				return list;
+			}
+			
+			// Is the project list absent, but there is a source code in storage? Creat with one element.
+			if (localStorage[SAVED_CODE_KEY]) {
+				return {
+					selectedId: 1,
+					items: [
+						{id: 1, name: 'Untitled 1'}
+					]
+				};
+			}
+
+			// Nothing found? Return an empty project list.
+			return {
+				selectedId: 0,
+				items: []
+			};
+		},
+		
+		saveProjectList() {
+			localStorage[SAVED_CODE_KEY + '-list'] = JSON.stringify(this.getProjectList());
+		},
+		
+		createNewProject() {
+			/** FIXME: This is crashing
+			const list = userCodeStorage.listProjects();
+			const maximumId = Math.max(list.map(({id}) => id));
+
+			const hasName = (nameToFind) => !!list.find(({name}) => nameToFind);
+			const createNewName = (n) => `Untitled ${n}`;
+			
+			let nameSuffix = 1;
+			let newName = createNewName(nameSuffix);
+			while (hasName(newName)) {
+				nameSuffix++;
+				newName = createNewName(nameSuffix);
+			}
+			
+			this.saveProjectList();
+			*/
+		},
+		
+		getKey() {
+			const selectedId = this.getProjectList().selectedId;
+			const suffix = selectedId > 1 ? '-' + selectedId : '';
+			return SAVED_CODE_KEY + suffix;
+		}
+		
+	  };
 
       generatedAsmElement.value = '';
       outputElement.value = '';
@@ -490,8 +603,24 @@
 			emulatorContainerElement.addEventListener('keyup', preventDefaultIfArrowPressed);
 		},
 		
+		loadAutoSavedSourcesContent: () => {
+			const projectList = userCodeStorage.getProjectList();
+			autoSavedSourcesElement.innerHTML = '<option value="0">-- none --</option>';
+			projectList.items.forEach(({id, name}) => autoSavedSourcesElement.add(new Option(name, id)));
+			autoSavedSourcesElement.value = projectList.selectedId;
+		},
+
+		captureAutoSavedSourcesEvents: () => {	
+			autoSavedSourcesElement.addEventListener('change', () => {
+				userCodeStorage.setSelectedId(exampleSourcesElement.value);
+				if (userCodeStorage.getSelectedId() > 0) {
+					gui.loadCodeEditorContent();
+				}
+			});
+		},
+		
 		loadCodeEditorContent: () => {
-			inputBasicElement.value = localStorage[SAVED_CODE_KEY] || '';
+			inputBasicElement.value = userCodeStorage.loadCode() || '';
 			gui.unchangedCode = inputBasicElement.value;
 		},
 		
@@ -503,7 +632,7 @@
 				}
 			
 				console.info('Changed!');
-				localStorage[SAVED_CODE_KEY] = inputBasicElement.value;
+				userCodeStorage.saveCode(inputBasicElement.value);
 				gui.unchangedCode = inputBasicElement.value;
 			};
 			
@@ -534,11 +663,13 @@
 			inputBasicElement.addEventListener('keyup', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
 						
+			gui.loadAutoSavedSourcesContent();
 			gui.loadCodeEditorContent();
 		},
 
 		captureEvents: () => {
 			gui.captureEmulatorEvents();
+			gui.captureAutoSavedSourcesEvents();
 			gui.captureCodeEditorEvents();
 		},
 	  };

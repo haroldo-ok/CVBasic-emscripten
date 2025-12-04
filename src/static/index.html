@@ -267,7 +267,7 @@
 
 		loadProjectList() {
 			const listAsJson = localStorage[SAVED_CODE_KEY + '-list'];
-			const list = listAsJson ? JSON.parse(list) : null;
+			const list = listAsJson ? JSON.parse(listAsJson) : null;
 			
 			// Is the project list present in storage? Return it.
 			if (list) {
