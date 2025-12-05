@@ -453,7 +453,7 @@
 			}
 			exampleSourcesElement.addEventListener('change', () => {
 				if (exampleSourcesElement.value) {
-					userCodeStorage.setSelectedId(autoSavedSourcesElement.value);
+					userCodeStorage.setSelectedId(0);
 					autoSavedSourcesElement.value = 0;
 					
 					loadExample(exampleSourcesElement.value);
