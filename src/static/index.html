@@ -333,8 +333,11 @@
 		},
 		
 		updateProjectDate() {
-			this.getSelectedProjectInfo().updatedAt = this.getIsoDate();			
-			this.saveProjectList();
+			const project = this.getSelectedProjectInfo();
+			if (project) {
+				project.updatedAt = this.getIsoDate();			
+				this.saveProjectList();
+			}
 		},
 		
 		getIsoDate() {
