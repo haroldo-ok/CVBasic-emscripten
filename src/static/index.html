@@ -228,6 +228,7 @@
 			if (!this.getSelectedProjectInfo()) {
 				this.createNewProject();
 			}
+			this.updateProjectDate();
 			localStorage[this.getKey()] = sourceCode;
 		},
 		
@@ -279,7 +280,12 @@
 				return {
 					selectedId: 1,
 					items: [
-						{id: 1, name: 'Untitled 1'}
+						{
+							id: 1,
+							name: 'Untitled 1',
+							createdAt: this.getIsoDate(),
+							updatedAt: this.getIsoDate(),
+						}
 					]
 				};
 			}
@@ -318,10 +324,21 @@
 			const newId = this.createNewProjectId();
 			projectList.items.push({
 				id: newId,
-				name: newName
+				name: newName,
+				createdAt: this.getIsoDate(),
+				updatedAt: this.getIsoDate(),
 			});
 			
 			this.setSelectedId(newId);
+		},
+		
+		updateProjectDate() {
+			this.getSelectedProjectInfo().updatedAt = this.getIsoDate();			
+			this.saveProjectList();
+		},
+		
+		getIsoDate() {
+			return new Date().toISOString();
 		},
 		
 		getKey() {
