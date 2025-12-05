@@ -451,8 +451,11 @@
 			if (!inputBasicElement.value) {
 				loadExample('face_joystick.bas');
 			}
-			exampleSourcesElement.addEventListener('click', () => {
+			exampleSourcesElement.addEventListener('change', () => {
 				if (exampleSourcesElement.value) {
+					userCodeStorage.setSelectedId(autoSavedSourcesElement.value);
+					autoSavedSourcesElement.value = 0;
+					
 					loadExample(exampleSourcesElement.value);
 				} else {
 					gui.loadCodeEditorContent();
