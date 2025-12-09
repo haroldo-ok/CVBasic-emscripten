@@ -262,7 +262,6 @@
 		getProjectList() {
 			if (!this._projectList) {
 				this._projectList = this.loadProjectList();
-				this.fixProjectList();
 			}
 			return this._projectList;
 		},
@@ -331,9 +330,6 @@
 			});
 			
 			this.setSelectedId(newId);
-		},
-		
-		fixProjectList(projectList) {
 		},
 		
 		updateProjectDate() {
