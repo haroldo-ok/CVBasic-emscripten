@@ -262,6 +262,7 @@
 		getProjectList() {
 			if (!this._projectList) {
 				this._projectList = this.loadProjectList();
+				this.fixProjectList();
 			}
 			return this._projectList;
 		},
@@ -303,7 +304,7 @@
 		
 		createNewProjectId() {
 			const list = this.listProjects();
-			const maximumId = Math.max(0, ...list.map(({id}) => id).filter(id => !!id && !id < 0));
+			const maximumId = Math.max(0, ...list.map(({id}) => id).filter(id => !!id && id > 0));
 			return maximumId + 1;
 		},
 		
@@ -330,6 +331,9 @@
 			});
 			
 			this.setSelectedId(newId);
+		},
+		
+		fixProjectList(projectList) {
 		},
 		
 		updateProjectDate() {
