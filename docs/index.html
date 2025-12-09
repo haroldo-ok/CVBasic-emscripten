@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>CVBasic online compiler v0.0.22</title>
+    <title>CVBasic online compiler v0.0.23</title>
 	<link rel="icon" type="image/x-icon" href="./favicon.ico">
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
@@ -99,7 +99,7 @@
   </head>
   <body>
 	<h1 class="nes-text is-primary">
-		<label class="is-primary float-right">CVBasic online compiler v0.0.22</label>
+		<label class="is-primary float-right">CVBasic online compiler v0.0.23</label>
 		<a href="https://github.com/haroldo-ok/CVBasic-emscripten" target="_blank" class="github-icon">
 			<i class="nes-icon github-square half-size-font"></i>
 		</a>
@@ -115,11 +115,23 @@
 		<div class="left nes-container with-title">
 			<h3 class="title">CVBasic source code</h3>
 
-			<label for="example-sources" class="half">Example:</label>
-			<div class="nes-select">
-			  <select required id="example-sources">
-				<option value="">-- none --</option>
-			  </select>
+			<div class="side-by-side">
+				<div class="left">
+					<label for="example-sources" class="half">Example:</label>
+					<div class="nes-select">
+					  <select required id="example-sources">
+						<option value="">-- none --</option>
+					  </select>
+					</div>
+				</div>
+				<div class="right">
+					<label for="autosaved-sources" class="half">Projects:</label>
+					<div class="nes-select">
+					  <select id="autosaved-sources">
+						<option value="0">-- none --</option>
+					  </select>
+					</div>
+				</div>
 			</div>
 			
 			<label for="target-hardware">Target:</label>
@@ -180,13 +192,14 @@
 		<textarea class="emscripten nes-textarea" id="output" rows="6" readonly></textarea>
 	</div>
 
-	<script src="./compiler-invoker.js?ideVersion=v0.0.22"></script>	 
+	<script src="./compiler-invoker.js?ideVersion=v0.0.23"></script>	 
 	
     <script type='text/javascript'>	  
       const inputBasicElement = document.getElementById('input-basic');
       const generatedAsmElement = document.getElementById('generated-asm');
       const outputElement = document.getElementById('output');
 	  const exampleSourcesElement = document.getElementById('example-sources');
+	  const autoSavedSourcesElement = document.getElementById('autosaved-sources');
 	  window.targetHardwareElement = document.getElementById('target-hardware');
 	  const downloadGeneratedRomButton = document.getElementById('download-generated-rom');	  
 	  const downloadEmbedRomAsHtmlButton = document.getElementById('embed-rom-as-html');
@@ -208,6 +221,136 @@
 	  };
 	  
 	  const SAVED_CODE_KEY = 'cvbasic-usercode-bas';
+	  
+	  window.userCodeStorage = {
+	  
+		saveCode(sourceCode) {
+			if (!this.getSelectedProjectInfo()) {
+				this.createNewProject();
+			}
+			this.updateProjectDate();
+			localStorage[this.getKey()] = sourceCode;
+		},
+		
+		loadCode() {
+			return localStorage[this.getKey()];
+		},
+		
+		listProjects() {
+			return this.getProjectList().items;
+		},
+		
+		getSelectedProjectInfo() {
+			return this.getProjectInfo(this.getSelectedId());
+		},
+		
+		getProjectInfo(projectId) {
+			return this.listProjects().find(({id}) => id == projectId);
+		},
+
+		getSelectedId() {
+			const projectList = this.getProjectList();
+			return projectList.selectedId || 0;
+		},
+		
+		setSelectedId(selectedId) {
+			const projectList = this.getProjectList();
+			projectList.selectedId = parseInt(selectedId);
+			this.saveProjectList();
+		},
+		
+		getProjectList() {
+			if (!this._projectList) {
+				this._projectList = this.loadProjectList();
+			}
+			return this._projectList;
+		},
+
+		loadProjectList() {
+			const listAsJson = localStorage[SAVED_CODE_KEY + '-list'];
+			const list = listAsJson ? JSON.parse(listAsJson) : null;
+			
+			// Is the project list present in storage? Return it.
+			if (list) {
+				return list;
+			}
+			
+			// Is the project list absent, but there is a source code in storage? Creat with one element.
+			if (localStorage[SAVED_CODE_KEY]) {
+				return {
+					selectedId: 1,
+					items: [
+						{
+							id: 1,
+							name: 'Untitled 1',
+							createdAt: this.getIsoDate(),
+							updatedAt: this.getIsoDate(),
+						}
+					]
+				};
+			}
+
+			// Nothing found? Return an empty project list.
+			return {
+				selectedId: 0,
+				items: []
+			};
+		},
+		
+		saveProjectList() {
+			localStorage[SAVED_CODE_KEY + '-list'] = JSON.stringify(this.getProjectList());
+		},
+		
+		createNewProjectId() {
+			const list = this.listProjects();
+			const maximumId = Math.max(0, ...list.map(({id}) => id).filter(id => !!id && id > 0));
+			return maximumId + 1;
+		},
+		
+		createNewProject() {
+			const projectList = this.getProjectList();			
+			const list = projectList.items;
+
+			const hasName = (nameToFind) => !!list.find(({name}) => name === nameToFind);
+			const createNewName = (n) => `Untitled ${n}`;
+			
+			let nameSuffix = 1;
+			let newName = createNewName(nameSuffix);
+			while (hasName(newName)) {
+				nameSuffix++;
+				newName = createNewName(nameSuffix);
+			}
+			
+			const newId = this.createNewProjectId();
+			projectList.items.push({
+				id: newId,
+				name: newName,
+				createdAt: this.getIsoDate(),
+				updatedAt: this.getIsoDate(),
+			});
+			
+			this.setSelectedId(newId);
+		},
+		
+		updateProjectDate() {
+			const project = this.getSelectedProjectInfo();
+			if (project) {
+				project.updatedAt = this.getIsoDate();			
+				this.saveProjectList();
+			}
+		},
+		
+		getIsoDate() {
+			return new Date().toISOString();
+		},
+		
+		getKey() {
+			const selectedId = this.getSelectedId();
+			const suffix = selectedId > 1 ? '-' + selectedId : '';
+			return SAVED_CODE_KEY + suffix;
+		}
+		
+	  };
 
       generatedAsmElement.value = '';
       outputElement.value = '';
@@ -311,8 +454,11 @@
 			if (!inputBasicElement.value) {
 				loadExample('face_joystick.bas');
 			}
-			exampleSourcesElement.addEventListener('click', () => {
+			exampleSourcesElement.addEventListener('change', () => {
 				if (exampleSourcesElement.value) {
+					userCodeStorage.setSelectedId(0);
+					autoSavedSourcesElement.value = 0;
+					
 					loadExample(exampleSourcesElement.value);
 				} else {
 					gui.loadCodeEditorContent();
@@ -490,8 +636,24 @@
 			emulatorContainerElement.addEventListener('keyup', preventDefaultIfArrowPressed);
 		},
 		
+		loadAutoSavedSourcesContent: () => {
+			const projectList = userCodeStorage.getProjectList();
+			autoSavedSourcesElement.innerHTML = '<option value="0">-- none --</option>';
+			projectList.items.forEach(({id, name}) => autoSavedSourcesElement.add(new Option(name, id)));
+			autoSavedSourcesElement.value = projectList.selectedId;
+		},
+
+		captureAutoSavedSourcesEvents: () => {	
+			autoSavedSourcesElement.addEventListener('change', () => {
+				userCodeStorage.setSelectedId(autoSavedSourcesElement.value);
+				if (userCodeStorage.getSelectedId() > 0) {
+					gui.loadCodeEditorContent();
+				}
+			});
+		},
+		
 		loadCodeEditorContent: () => {
-			inputBasicElement.value = localStorage[SAVED_CODE_KEY] || '';
+			inputBasicElement.value = userCodeStorage.loadCode() || '';
 			gui.unchangedCode = inputBasicElement.value;
 		},
 		
@@ -503,8 +665,12 @@
 				}
 			
 				console.info('Changed!');
-				localStorage[SAVED_CODE_KEY] = inputBasicElement.value;
+				userCodeStorage.saveCode(inputBasicElement.value);
 				gui.unchangedCode = inputBasicElement.value;
+
+				if (autoSavedSourcesElement.value != userCodeStorage.getSelectedId()) {
+					gui.loadAutoSavedSourcesContent();
+				}
 			};
 			
 			const handleCodeEditorInputDebounced = debounce(handleCodeEditorInput, 300);
@@ -534,11 +700,13 @@
 			inputBasicElement.addEventListener('keyup', handleCodeEditorInputDebounced);
 			inputBasicElement.addEventListener('blur', handleCodeEditorInput);
 						
+			gui.loadAutoSavedSourcesContent();
 			gui.loadCodeEditorContent();
 		},
 
 		captureEvents: () => {
 			gui.captureEmulatorEvents();
+			gui.captureAutoSavedSourcesEvents();
 			gui.captureCodeEditorEvents();
 		},
 	  };
