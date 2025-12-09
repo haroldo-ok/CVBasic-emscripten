@@ -303,7 +303,7 @@
 		
 		createNewProjectId() {
 			const list = this.listProjects();
-			const maximumId = Math.max(...list.map(({id}) => id).filter(id => !!id));
+			const maximumId = Math.max(0, ...list.map(({id}) => id).filter(id => !!id && !id < 0));
 			return maximumId + 1;
 		},
 		
